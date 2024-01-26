@@ -1,7 +1,6 @@
 '''
 This is the main module. It is responsible for starting the HAS.
 '''
-# include the modules from the modules folder
 import os
 import sys
 from modules import com_module, storage_module, error_handler_module, webservice_module
