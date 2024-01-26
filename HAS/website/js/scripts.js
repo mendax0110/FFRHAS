@@ -1,0 +1,1 @@
+// This is the scripts file for the HAS website
