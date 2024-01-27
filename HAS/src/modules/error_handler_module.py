@@ -1,6 +1,8 @@
-'''
-This is the error handler module. It is responsible for handling errors (web,database,etc.)
-'''
+## 
+# @file error_handler_module.py
+# @brief Error handler module class definition \class ErrorHandlerModule
+# @date 2021-04-05
+# @author placeholder
 import os
 import sys
 import traceback

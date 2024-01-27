@@ -1,6 +1,8 @@
-'''
-This is the web service module. It is responsible for handling web requests (GET, POST, etc.)
-'''
+## 
+# @file webservice_module.py
+# @brief Web service module class definition \class WebServiceModule
+# @date 2021-04-05
+# @author placeholder
 import os
 import sys
 import json

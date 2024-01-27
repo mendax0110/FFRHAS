@@ -1,10 +1,13 @@
-'''
-This is the main module. It is responsible for starting the HAS.
-'''
+## 
+# @file main.py
+# @brief Main class definition \class HAS
+# @date 2021-04-05
+# @author placeholder
 import os
 import sys
 from modules import com_module, storage_module, error_handler_module, webservice_module
 
+# 
 class HAS:
     def __init__(self):
         self.port = 5000

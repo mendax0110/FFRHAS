@@ -1,6 +1,8 @@
-'''
-This is the storage module. It is responsible for storing data in the database (simple JSON files)
-'''
+## 
+# @file storage_module.py
+# @brief Storage module class definition \class StorageModule
+# @date 2021-04-05
+# @author placeholder
 import os
 import sys
 import json
