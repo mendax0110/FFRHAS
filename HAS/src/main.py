@@ -7,7 +7,7 @@ import os
 import sys
 from modules import com_module, storage_module, error_handler_module, webservice_module
 
-# 
+
 class HAS:
     def __init__(self):
         self.port = 5000
