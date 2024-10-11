@@ -1,0 +1,12 @@
+.count
+{
+    font-size: large;
+}
+.div
+{
+    width: 100vw;
+    height: 50vh;
+    align-content: center;
+    text-align: center;
+    border-style: solid;
+}
