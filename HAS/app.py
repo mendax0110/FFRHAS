@@ -9,6 +9,7 @@ app.register_blueprint(ffr_blueprint, url_prefix='/get_data_from_backend')
 def index():
     return render_template('index.html')
 
-
+# We need 0.0.0.0 to be able to access the HAS in the Docker-Contianer
+# Otherwise we cannot access it from the host or other machines which are trying to access the host
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', debug=True, port=5000)
