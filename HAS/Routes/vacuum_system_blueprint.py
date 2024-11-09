@@ -1,11 +1,11 @@
 from flask import Blueprint
-from Controllers.test_controller import test_controller
+from Controllers.vacuum_system_controller import vacuum_system_controller
 
-ffr_blueprint = Blueprint('ffr_blueprint', __name__)
+vacuum_system_blueprint = Blueprint('vacuumsystem', __name__)
 
-controller = test_controller()
+controller = vacuum_system_controller()
 
-ffr_blueprint.route('/', methods=['GET'])(controller.get_data)
+vacuum_system_blueprint.route('/', methods=['GET'])(controller.render_template)
 #ffr_blueprint.route('/create', *methods*=['POST'])()
 #ffr_blueprint.route('/<int:user_id>', *methods*=['GET'])()
 #ffr_blueprint.route('/<int:user_id>/edit', *methods*=['POST'])()
