@@ -1,5 +1,17 @@
 {% extends "base.html" %}
 
+{% block src%}
+<script src="/static/js/highvoltagesystem.js"></script>
+{% endblock %}
+
 {% block content %}
     Highvoltagesystem
+    <h2>Get All Users</h2>
+    <button type="button" class="btn btn-primary" onclick="getAllUsers()">Get All Users</button>
+    <div id="getAllUsersResult"></div>
+
+    <h2>Create User</h2>
+    <label for="newUserName">Name:</label>
+    <input type="text" id="newUserName">
+    <button onclick="createUser()">Create User</button>
 {% endblock %}
