@@ -1,4 +1,5 @@
-  function init() {
+function init() {
+    go.Diagram.licenseKey = "288647e1b4614fc702d90676423d6bbc5cf07e34ca960ef60a0013f4e95b6b40759bbc7854db8dc4d4ea5efa482d95d98d96397ec44a0c3be138d7d845ea86fde23073b0110e178dac5371c7cbad2ca2ff7e76a7c2e022a68928d9f2eba8c19958b8a0874ecf5ab97b7d54370177a819bef98c69e904991f6d6dcaf7fbfbbf4afb6f729b9ee54888ea";
     myDiagram = new go.Diagram('myDiagramDiv', {
       'animationManager.isEnabled': false,
       'undoManager.isEnabled': true,
@@ -315,7 +316,7 @@
               { label: 'OP', unit: '%', value: '25.0' }
             ],
             statuses: [
-              { fill: colors.green },
+              { fill: colors.red },
               { fill: colors.green },
               { fill: colors.green }
             ]

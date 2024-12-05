@@ -5,4 +5,4 @@ class overview_controller:
         pass
 
     def render_template(self):
-        return render_template('index.html', active_page='overview')
+        return render_template('overview.html', active_page='overview')
