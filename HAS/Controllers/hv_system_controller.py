@@ -10,7 +10,7 @@ class hv_system_controller:
         return render_template('highvoltagesystem.html', active_page='highvoltagesystem')
 
     def save(self):
-        client = pymongo.MongoClient("mongodb://192.168.230.171:27017")  # connection string
+        client = pymongo.MongoClient("mongodb://admin:secret@192.168.230.171:27017")  # connection string
         db = client.Test  # use/create db
         test = db.Test  # use/create folder in db
         if (request.method == 'POST'):
@@ -19,7 +19,7 @@ class hv_system_controller:
         return dumps(data), 201
 
     def get(self):
-        client = pymongo.MongoClient("mongodb://192.168.230.171:27017")  # connection string
+        client = pymongo.MongoClient("mongodb://admin:secret@192.168.230.171:27017")  # connection string
         db = client.Test  # use/create db
         test = db.Test  # use/create folder in db
         data = test.find()
