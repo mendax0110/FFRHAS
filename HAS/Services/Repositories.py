@@ -3,8 +3,8 @@ import pymongo
 from bson.json_util import dumps
 
 class SensorDataRepository:
-    def __init__(self, user:str, pwd:str):
-        self.__client = pymongo.MongoClient(f"mongodb://{user}:{pwd}@127.0.0.1:27017")  # connection string
+    def __init__(self):
+        self.__client = pymongo.MongoClient(f"mongodb://admin:secret@127.0.0.1:27017")  # connection string
         self.__db = self.__client.Test  # use/create db
         self.__test = self.__db.Test  # use/create folder in db
 

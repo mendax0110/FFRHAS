@@ -7,7 +7,7 @@ class EswClient:
     def __init__(self, endpoints: list):
         self.__fetching = False
         self.__endpoints = endpoints
-        self.__repository = SensorDataRepository("admin", "secret")
+        self.__repository = SensorDataRepository()
 
     def start_fetching(self):
         self.__fetching = True
