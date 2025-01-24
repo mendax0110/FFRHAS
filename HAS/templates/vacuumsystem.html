@@ -2,4 +2,16 @@
 
 {% block content %}
     Vacuumsystem
+    <iframe id="grafana-dashboard" width="450" height="200" frameborder="0"></iframe>
+
+    <script>
+        // Define the global JavaScript variable
+        const host = window.location.hostname; // Gets the host (IP or domain name)
+
+        // Construct the iframe URL
+        const iframeSrc = `http://${host}:3000/d-solo/ceayqb7p5n1fkc/test-mongodb?orgId=1&from=1737706137598&to=1737727737598&timezone=browser&panelId=1&__feature.dashboardSceneSolo`;
+
+        // Dynamically set the iframe src using the variable
+        document.getElementById("grafana-dashboard").src = iframeSrc;
+    </script>
 {% endblock %}
