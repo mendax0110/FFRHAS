@@ -5,7 +5,7 @@ from bson.json_util import dumps
 
 class hv_system_controller:
     def __init__(self):
-        self.__repository = SensorDataRepository("admin", "secret")
+        self.__repository = SensorDataRepository()
 
     def render_template(self):
         return render_template('highvoltagesystem.html', active_page='highvoltagesystem')
