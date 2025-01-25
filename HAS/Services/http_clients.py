@@ -22,8 +22,8 @@ class EswClient:
                     data = self.fetch_api_endpoint(endpoint)
                     # save data to DB
                     self.save_to_db(data)
-                except Exception:
-                    continue
+                except Exception as ex:
+                    print("[ERROR]" + ex)
 
             time.sleep(10)
 
