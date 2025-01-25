@@ -18,9 +18,12 @@ class EswClient:
         while self.__fetching:
             for endpoint in self.__endpoints:
                 # fetch data from uC
-                data = self.fetch_api_endpoint(endpoint)
-                # save data to DB
-                self.save_to_db(data)
+                try:
+                    data = self.fetch_api_endpoint(endpoint)
+                    # save data to DB
+                    self.save_to_db(data)
+                except Exception:
+                    continue
 
             time.sleep(10)
 
