@@ -1,6 +1,10 @@
 import random
 import time
+
+import requests
+
 from Services.Repositories import SensorDataRepository
+from requests import request
 
 
 class EswClient:
@@ -24,16 +28,10 @@ class EswClient:
         self.__fetching = False
 
     def fetch_api_endpoint(self, endpoint: str):
-        #TODO: replace testdata with real code
-        random_generator = random.Random()
-        test = random_generator.randint(1, 50)
+        raw_response = requests.get(endpoint)
+        print("[received]" + raw_response.json())
+        response = raw_response.json()
 
-        response = {
-            "sensor_name": "temperature_sensor_1",
-            "value": test,
-            "unit": "Celsius",
-            "timestamp": "2025-01-04T15:30:00Z"
-        }
         return response
 
     def save_to_db(self, data: dict):
