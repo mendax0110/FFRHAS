@@ -32,7 +32,7 @@ class EswClient:
 
     def fetch_api_endpoint(self, endpoint: str):
         raw_response = requests.get(endpoint)
-        print("[received]" + raw_response.json())
+        print("[received]" + str(raw_response.json()))
         response = raw_response.json()
 
         return response
