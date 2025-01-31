@@ -23,7 +23,7 @@ class EswClient:
                     # save data to DB
                     self.save_to_db(data)
                 except Exception as ex:
-                    print("[ERROR]" + ex)
+                    print(f"[ERROR] {ex}")
 
             time.sleep(10)
 
@@ -32,7 +32,9 @@ class EswClient:
 
     def fetch_api_endpoint(self, endpoint: str):
         raw_response = requests.get(endpoint)
-        print("[received]" + str(raw_response.json()))
+
+        #validation logic
+
         response = raw_response.json()
 
         return response
