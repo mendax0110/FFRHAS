@@ -15,8 +15,12 @@ app.register_blueprint(hv_system_blueprint, url_prefix='/highvoltagesystem')
 app.register_blueprint(systemstatus_blueprint, url_prefix='/systemstatus')
 CORS(app)
 
-#TODO: pass real endpoint list
-client = EswClient(["http://192.168.1.3/temperature_sensor_1", "http://192.168.1.3/temperature_sensor_2"])
+eswEndpoints = [
+    "http://192.168.1.3/temperature_sensor_1",
+    "http://192.168.1.3/temperature_sensor_2"
+]
+
+client = EswClient(eswEndpoints)
 
 
 if __name__ == "__main__":

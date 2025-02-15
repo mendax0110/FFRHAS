@@ -9,7 +9,7 @@
         const host = window.location.hostname; // Gets the host (IP or domain name)
 
         // Construct the iframe URL
-        const iframeSrc = `http://${host}:3000/d-solo/ceayqb7p5n1fkc/test-mongodb?orgId=1&from=1737706137598&to=1737727737598&timezone=browser&panelId=1&__feature.dashboardSceneSolo`;
+        const iframeSrc = `http://${host}:3000/d-solo/temperature?orgId=1&panelId=1`;
 
         // Dynamically set the iframe src using the variable
         document.getElementById("grafana-dashboard").src = iframeSrc;
