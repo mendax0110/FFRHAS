@@ -37,10 +37,8 @@ class EswClient:
     def fetch_api_endpoint(self, endpoint: str):
         raw_response = requests.get(endpoint)
 
-        #validation logic
-
         response = raw_response.json()
-
+        
         return response
 
     def save_to_db(self, data: dict):
