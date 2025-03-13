@@ -3,6 +3,7 @@ from Routes.overview_blueprint import overview_blueprint
 from Routes.vacuum_system_blueprint import vacuum_system_blueprint
 from Routes.hv_system_blueprint import hv_system_blueprint
 from Routes.systemstatus_blueprint import systemstatus_blueprint
+from Routes.time_blueprint import time_blueprint
 from flask_cors import CORS
 from Services.http_clients import EswClient
 import threading
@@ -13,6 +14,7 @@ app.register_blueprint(overview_blueprint, url_prefix='/')
 app.register_blueprint(vacuum_system_blueprint, url_prefix='/vacuumsystem')
 app.register_blueprint(hv_system_blueprint, url_prefix='/highvoltagesystem')
 app.register_blueprint(systemstatus_blueprint, url_prefix='/systemstatus')
+app.register_blueprint(time_blueprint, url_prefix='/time')
 CORS(app)
 
 eswEndpoints = [

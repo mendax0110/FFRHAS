@@ -22,8 +22,8 @@ class EswClient:
                 # fetch data from uC
                 try:
                     data = self.fetch_api_endpoint(endpoint)
-                    # save data to DB
-                    self.save_to_db(data)
+                    sensordata = SensorData(data["sensor_name"], data["value"], data["unit"], data["timestamp"])
+                    self.save_to_db(sensordata)
                 except Exception as ex:
                     print(f"[ERROR] {ex}")
                     data = LoggingData(Source.HAS, LoggingType.Error, str(ex), datetime.datetime.isoformat())
@@ -41,5 +41,5 @@ class EswClient:
         
         return response
 
-    def save_to_db(self, data: dict):
+    def save_to_db(self, data: SensorData):
         self.__repository.write_one(data)
