@@ -1,0 +1,20 @@
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+.leftSide {
+    width: 50vw;
+    display: flex;
+}
+
+.rightSide {
+    width: 50vw;
+    display: flex;
+    flex-direction: column; 
+}
+
+.rightSide iframe {
+    width: 100vw;
+    flex: 1; /* Makes all iframes take equal height */
+}

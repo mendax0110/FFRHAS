@@ -1,17 +1,34 @@
 {% extends "base.html" %}
 
+{% block style%}
+<link rel="stylesheet" href="/static/css/vacuumsystemStyle.css">
+{% endblock %}
+
 {% block content %}
     Vacuumsystem
-    <iframe id="grafana-dashboard" width="450" height="200" frameborder="0"></iframe>
+    <div class="container">
+        <div class="leftSide">
+
+        </div>
+        <div class="rightSide">
+            <iframe id="grafana-temp1" width="450" height="200" frameborder="0"></iframe>
+            <iframe id="grafana-temp2" width="450" height="200" frameborder="0"></iframe>
+         <iframe id="grafana-pressure" width="450" height="200" frameborder="0"></iframe>
+        </div>
+    </div>
 
     <script>
         // Define the global JavaScript variable
         const host = window.location.hostname; // Gets the host (IP or domain name)
 
         // Construct the iframe URL
-        const iframeSrc = `http://${host}:3000/d-solo/temperature?orgId=1`;
+        const iframeSrcTemp1 = `http://${host}:3000/d-solo/Vacuumsystem?orgId=1&panelId=1`;
+        const iframeSrcTemp2 = `http://${host}:3000/d-solo/Vacuumsystem?orgId=1&panelId=2`;
+        const iframeSrcPressure = `http://${host}:3000/d-solo/Vacuumsystem?orgId=1&panelId=3`;
 
         // Dynamically set the iframe src using the variable
-        document.getElementById("grafana-dashboard").src = iframeSrc;
+        document.getElementById("grafana-temp1").src = iframeSrcTemp1;
+        document.getElementById("grafana-temp2").src = iframeSrcTemp2;
+        document.getElementById("grafana-pressure").src = iframeSrcPressure;
     </script>
 {% endblock %}
