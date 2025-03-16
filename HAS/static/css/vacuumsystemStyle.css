@@ -1,9 +1,11 @@
 .leftSide {
+    height: 100%;
     width: 50vw;
     display: flex;
 }
 
 .rightSide {
+    height: 100%;
     width: 50vw;
     display: flex;
     flex-direction: column; 
