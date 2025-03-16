@@ -1,8 +1,3 @@
-.container {
-    display: flex;
-    height: 100vh;
-}
-
 .leftSide {
     width: 50vw;
     display: flex;
@@ -15,6 +10,6 @@
 }
 
 .rightSide iframe {
-    width: 100vw;
+    width: 50vw;
     flex: 1; /* Makes all iframes take equal height */
 }
