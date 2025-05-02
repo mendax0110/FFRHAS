@@ -4,53 +4,77 @@
 <link rel="stylesheet" href="/static/css/vacuumsystemStyle.css">
 {% endblock %}
 
+{% block src %}
+<script src="../static/js/vacuumsystem.js"></script>
+{% endblock %}
+
 {% block content %}
-    <div class="leftSide">
-      <div class="control shadow p-4 bg-white rounded">
-        <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-          <input type="radio" class="btn-check" name="Mode" id="Automatic" autocomplete="off" checked>
-          <label class="btn btn-outline-primary" for="Automatic">Automatic</label>
+<div class="leftSide">
+  <div class="control shadow p-4 bg-white rounded">
+    <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+      <input type="radio" onclick="ModeAutomatic()" class="btn-check" name="Mode" id="Automatic" autocomplete="off" checked>
+      <label class="btn btn-outline-primary" for="Automatic">Automatic</label>
 
-          <input type="radio" class="btn-check" name="Mode" id="Manual" autocomplete="off">
-          <label class="btn btn-outline-primary" for="Manual">Manual</label>
-        </div>
-      </div>
-      <div class="control shadow p-4 bg-white rounded">
-        <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-          <input type="radio" class="btn-check" name="State" id="On" autocomplete="off">
-          <label class="btn btn-outline-primary" for="On">Pump On</label>
+      <input type="radio" onclick="ModeManual()" class="btn-check" name="Mode" id="Manual" autocomplete="off">
+      <label class="btn btn-outline-primary" for="Manual">Manual</label>
+    </div>
+  </div>
+  <div class="control shadow p-4 bg-white rounded">
+    <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+      <input type="radio" disabled="true" onclick="event.preventDefault(); showModal(SwitchPumpOn)" class="btn-check" name="State" id="On" autocomplete="off">
+      <label class="btn btn-outline-primary" for="On">Pump On</label>
 
-          <input type="radio" class="btn-check" name="State" id="Off" autocomplete="off" checked>
-          <label class="btn btn-outline-primary" for="Off">Pump Off</label>
-        </div>        
+      <input type="radio" disabled="true" onclick="event.preventDefault(); showModal(SwitchPumpOff)" class="btn-check" name="State" id="Off" autocomplete="off" checked>
+      <label class="btn btn-outline-primary" for="Off">Pump Off</label>
+    </div>        
+  </div>
+  <div class="control shadow p-4 bg-white rounded">
+    <div class="input-group" style="justify-content: center;">
+      <div class="form-group">
+        <label for="sollInput" class="form-label">Soll [mbar]</label>
+        <input type="number" disabled="true" id="sollInput" class="form-control" aria-label="Soll">
       </div>
-      <div class="control shadow p-4 bg-white rounded">
-        <div class="input-group" style="justify-content: center;">
-          <div class="form-group">
-            <label for="sollInput" class="form-label">Soll [mbar]</label>
-            <input type="number" id="sollInput" class="form-control" aria-label="Soll">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Ist [mbar]</label>
-            <span class="form-control bg-light" style="pointer-events: none;">0</span>
-          </div>
-        </div>
-      </div>
-      <div class="control shadow p-4 bg-white rounded">
-        <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-          <input type="radio" class="btn-check" name="start" id="start" autocomplete="off">
-          <label class="btn btn-outline-primary" for="start">Start</label>
-
-          <input type="radio" class="btn-check" name="start" id="stop" autocomplete="off" checked>
-          <label class="btn btn-outline-primary" for="stop">Stop</label>
-        </div>  
+      <div class="form-group">
+        <label class="form-label">Ist [mbar]</label>
+        <span class="form-control bg-light" style="pointer-events: none;">0</span>
       </div>
     </div>
-    <div class="rightSide">
-        <iframe class="shadow bg-white rounded" id="grafana-temp1" width="450" height="200" frameborder="0"></iframe>
-        <iframe class="shadow bg-white rounded" id="grafana-temp2" width="450" height="200" frameborder="0"></iframe>
-        <iframe class="shadow bg-white rounded" id="grafana-pressure" width="450" height="200" frameborder="0"></iframe>
+  </div>
+  <div class="control shadow p-4 bg-white rounded">
+    <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+      <input type="radio" class="btn-check" onclick="event.preventDefault(); showModal(StartAutomatic)" name="start" id="start" autocomplete="off">
+      <label class="btn btn-outline-primary" for="start">Start</label>
+
+      <input type="radio" class="btn-check" onclick="event.preventDefault(); showModal(StopAutomatic)" name="start" id="stop" autocomplete="off" checked>
+      <label class="btn btn-outline-primary" for="stop">Stop</label>
+    </div>  
+  </div>
+</div>
+<div class="rightSide">
+    <iframe class="shadow bg-white rounded" id="grafana-temp1" width="450" height="200" frameborder="0"></iframe>
+    <iframe class="shadow bg-white rounded" id="grafana-temp2" width="450" height="200" frameborder="0"></iframe>
+    <iframe class="shadow bg-white rounded" id="grafana-pressure" width="450" height="200" frameborder="0"></iframe>
+</div>
+
+    <!-- Modal -->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Sicherheitsbestätigung</h5>
+        <button type="button" class="btn-close" onclick="CloseModal(false)" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Bist du dir sicher, dass du diese Aktion ausführen möchtest?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="CloseModal(false)">Abbrechen</button>
+        <button type="button" class="btn btn-primary" onclick="CloseModal(true)">Bestätigen</button>
+      </div>
     </div>
+  </div>
+</div>
+
 
     <script>
         // Define the global JavaScript variable
