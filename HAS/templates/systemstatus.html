@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block src%}
+<script src="/static/js/systemstatus.js"></script>
+{% endblock %}
+
 {% block content %}
     Systemstatus
     <iframe id="grafana-dashboard" width="450" height="200" frameborder="0"></iframe>

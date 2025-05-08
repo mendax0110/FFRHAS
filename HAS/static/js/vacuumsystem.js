@@ -5,6 +5,19 @@ const iframeSrcTemp1 = `http://${host}:3000/d-solo/Vacuumsystem?orgId=1&panelId=
 const iframeSrcTemp2 = `http://${host}:3000/d-solo/Vacuumsystem?orgId=1&panelId=2`;
 const iframeSrcPressure = `http://${host}:3000/d-solo/Vacuumsystem?orgId=1&panelId=3`;
 
+const socket = io('/vacuumsystem');
+
+socket.on('connect', () => {
+    console.log('Connected to /vacuumsystem');
+});
+
+socket.on('backendData', (data) => {
+    console.log('Received from server:', data);
+
+    // PROCESS DATA HERE
+
+});
+
 var callbackFunction = null;
 var currentModal = null;
 

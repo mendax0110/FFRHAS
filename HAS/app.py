@@ -1,4 +1,7 @@
-from flask import Flask, render_template, blueprints
+import eventlet
+eventlet.monkey_patch()
+
+from flask import Flask, render_template, blueprints, request
 from Routes.overview_blueprint import overview_blueprint
 from Routes.vacuum_system_blueprint import vacuum_system_blueprint
 from Routes.hv_system_blueprint import hv_system_blueprint
@@ -7,6 +10,7 @@ from Routes.time_blueprint import time_blueprint
 from flask_cors import CORS
 from Services.http_clients import EswClient
 import threading
+from flask_socketio import SocketIO, emit
 
 
 app = Flask(__name__)
@@ -17,6 +21,8 @@ app.register_blueprint(systemstatus_blueprint, url_prefix='/systemstatus')
 app.register_blueprint(time_blueprint, url_prefix='/time')
 CORS(app)
 
+socket = SocketIO(app, cors_allowed_origins="*")
+
 eswEndpoints = [
     "http://192.168.1.3/temperature_sensor_1",
     "http://192.168.1.3/temperature_sensor_2"
@@ -24,8 +30,12 @@ eswEndpoints = [
 
 client = EswClient(eswEndpoints)
 
+import Socket_handler.HighvoltagesystemHandler
+import Socket_handler.OverviewHandler
+import Socket_handler.SystemstatusHandler
+import Socket_handler.VacuumsystemHandler
 
 if __name__ == "__main__":
     api_thread = threading.Thread(target=client.start_fetching, daemon=True)
-    api_thread.start()
-    app.run(host = "0.0.0.0" ,debug=True, port=5000)
+    #api_thread.start()
+    socket.run(app, host = "0.0.0.0" ,debug=True, port=5000)
