@@ -4,12 +4,13 @@
 <link rel="stylesheet" href="/static/css/vacuumsystemStyle.css">
 {% endblock %}
 
-{% block src %}
-<script src="../static/js/vacuumsystem.js"></script>
-{% endblock %}
-
 {% block content %}
-<div class="leftSide">
+<div class="leftSide"
+  data-pump-on="{{ pumpOn | tojson }}"
+  data-target-pressure="{{ targetPressure | tojson }}"
+  data-automatic="{{ automatic | tojson }}"
+  data-hand-betrieb="{{ handBetrieb | tojson }}">
+
   <div class="control shadow p-4 bg-white rounded">
     <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
       <input type="radio" onclick="ModeAutomatic()" class="btn-check" name="Mode" id="Automatic" autocomplete="off" checked>
@@ -49,6 +50,10 @@
       <label class="btn btn-outline-primary" for="stop">Stop</label>
     </div>  
   </div>
+
+  <div id="controlStatusBanner" class="alert alert-warning" role="alert" style="display: none;">
+    <strong>Machine Control Activated!</strong> You cannot control the system from the website right now.
+  </div>  
 </div>
 <div class="rightSide">
     <iframe class="shadow bg-white rounded" id="grafana-temp1" width="450" height="200" frameborder="0"></iframe>
@@ -74,20 +79,8 @@
     </div>
   </div>
 </div>
+{% endblock %}
 
-
-    <script>
-        // Define the global JavaScript variable
-        const host = window.location.hostname; // Gets the host (IP or domain name)
-
-        // Construct the iframe URL
-        const iframeSrcTemp1 = `http://${host}:3000/d-solo/Vacuumsystem?orgId=1&panelId=1`;
-        const iframeSrcTemp2 = `http://${host}:3000/d-solo/Vacuumsystem?orgId=1&panelId=2`;
-        const iframeSrcPressure = `http://${host}:3000/d-solo/Vacuumsystem?orgId=1&panelId=3`;
-
-        // Dynamically set the iframe src using the variable
-        document.getElementById("grafana-temp1").src = iframeSrcTemp1;
-        document.getElementById("grafana-temp2").src = iframeSrcTemp2;
-        document.getElementById("grafana-pressure").src = iframeSrcPressure;
-    </script>
+{% block src %}
+<script src="../static/js/vacuumsystem.js"></script>
 {% endblock %}

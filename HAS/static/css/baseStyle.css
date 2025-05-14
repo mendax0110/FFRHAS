@@ -5,3 +5,10 @@
     justify-content: center;
     align-items: center;
 }
+
+@media (max-width: 800px) {
+    .content{
+        flex-direction: column;
+        height: auto;
+    }
+}

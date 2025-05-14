@@ -1,0 +1,48 @@
+.leftSide {
+    height: 100%;
+    width: 50vw;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    gap: 9px;
+}
+
+.control{
+    width: 100%;
+    flex: 1;
+    align-content: center;
+    text-align: center;
+}
+
+.rightSide {
+    height: 100%;
+    width: 50vw;
+    padding: 10px;
+    gap: 9px;
+    display: flex;
+    flex-direction: column; 
+}
+
+.rightSide iframe{
+    width: 100%;
+    border: none;
+    flex: 1; /* Makes all iframes take equal height */
+}
+
+@media (max-width: 800px) {
+    .leftSide{
+        padding: 20px;
+        gap: 10px; /* change gap because of a "pixel error" (available space/3 because of the iframes)*/
+        width: 100vw;
+        height: calc(100vh - 56px);
+    }
+}
+
+@media (max-width: 800px) {
+    .rightSide{
+        padding: 20px;
+        gap: 10px; /* change gap because of a "pixel error" (available space/3 because of the iframes)*/
+        width: 100vw;
+        height: 100vh;
+    }
+}
