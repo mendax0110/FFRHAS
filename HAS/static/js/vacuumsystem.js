@@ -29,6 +29,10 @@ socket.on('backendData', (data) => {
     console.log('Received from server:', data);
 
     // PROCESS DATA HERE
+    TogglePump(data.pumpOn);
+    ToggleAutomatic(data.automatic);
+    document.getElementById("sollInput").value = data.targetPressure;
+    ToggleControlStatus(data.handBetrieb);
 
 });
 
