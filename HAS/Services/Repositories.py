@@ -2,7 +2,10 @@ from enum import Enum
 from datetime import datetime, timezone
 import pymongo
 from bson.json_util import dumps
+from abc import ABC, abstractmethod
 
+#connectionString = f"mongodb://admin:secret@mongodb:27017"
+connectionString = f"mongodb://localhost:27017"
 
 class Unit(Enum):
     Celsius = 1
@@ -25,7 +28,7 @@ class SensorData:
 
 class SensorDataRepository:
     def __init__(self):
-        self.__client = pymongo.MongoClient(f"mongodb://admin:secret@mongodb:27017")  # connection string
+        self.__client = pymongo.MongoClient(connectionString)  # connection string
         self.__db = self.__client.Test  # use/create db
         self.__sensorData = self.__db.SensorData  # use/create folder in db
 
@@ -75,7 +78,7 @@ class LoggingData:
 
 class LoggingRepository:
     def __init__(self):
-        self.__client = pymongo.MongoClient(f"mongodb://admin:secret@mongodb:27017")  # connection string
+        self.__client = pymongo.MongoClient(connectionString)  # connection string
         self.__db = self.__client.Test  # use/create db
         self.__logging = self.__db.Logging  # use/create folder in db
 
@@ -100,3 +103,81 @@ class LoggingRepository:
 
     def write_many(self, data_list: list):
         self.__logging.insert_many(data_list)
+
+
+class System(Enum):
+    highVoltage = 1
+    vacuum = 2
+
+class StateBase(ABC):
+    def __init__(self):
+        self.system = ''
+
+    @classmethod
+    @abstractmethod
+    def from_dictionary(cls, data: dict) -> 'StateBase':
+        pass
+
+    @abstractmethod
+    def get_dictionary(self) -> 'dict':
+        pass
+
+class VacuumState(StateBase):
+    def __init__(self, pumpOn: bool, targetPressure: float, automatic: bool, handBetrieb: bool):
+        self.system = System.vacuum.name
+        self.pumpOn = pumpOn
+        self.targetPressure = targetPressure
+        self.automatic = automatic
+        self.handBetrieb = handBetrieb
+
+    @classmethod
+    def from_dictionary(cls, data: dict) -> 'VacuumState':
+        data = data.copy()
+        data.pop("_id", None)  # Entfernt MongoDB-ID, falls vorhanden
+
+        try:
+            return cls(
+                pumpOn=bool(data["pumpOn"]),
+                targetPressure=float(data["targetPressure"]),
+                automatic=bool(data["automatic"]),
+                handBetrieb=bool(data["handBetrieb"])
+            )
+        except KeyError as e:
+            raise ValueError(f"Missing field in data: {e}")
+
+    def get_dictionary(self) -> 'dict':
+        return {"system":self.system, "pumpOn": self.pumpOn, "targetPressure": self.targetPressure, "automatic": self.automatic, "handBetrieb": self.handBetrieb}
+
+#TODO: adapt the Datadict so it fits the highVoltage state requirements
+class HighVoltageState(StateBase):
+    def __init__(self, pumpOn: bool, targetPressure: float, automatic: bool, handBetrieb: bool):
+        self.system = System.highVoltage.name
+        self.pumpOn = pumpOn
+        self.targetPressure = targetPressure
+        self.automatic = automatic
+        self.handBetrieb = handBetrieb
+        self.DataDict = {"system":System.highVoltage, "pumpOn": pumpOn, "targetPressure": targetPressure, "automatic": automatic, "handBetrieb": handBetrieb}
+
+class StateRepository:
+    def __init__(self):
+        self.__client = pymongo.MongoClient(connectionString)  # connection string
+        self.__db = self.__client.Test  # use/create db
+        self.__state = self.__db.State  # use/create folder in db
+
+    def get_all(self):
+        data = self.__state.find()
+        return dumps(data)
+
+    def get_for_system(self, system: System):
+        data = self.__state.find_one({"system": system.name})
+        if data is None:
+            return None
+        return VacuumState.from_dictionary(data)
+
+    def update_state_for(self, status: StateBase):
+        self.__state.update_one(
+            {"system": status.system},  # Filter by system name
+            {"$set": status.get_dictionary()},              # Set the new data
+            upsert=True                             # Insert if it doesn't exist
+        )
+

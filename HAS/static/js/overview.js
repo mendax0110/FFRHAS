@@ -1,4 +1,19 @@
-const socket = io();
+const socket = io('/overview');
+
+socket.on('connect', () => {
+    console.log('Connected to /overview');
+});
+
+socket.on('backendData', (data) => {
+  console.log('Received from server:', data);
+
+  // PROCESS DATA HERE
+  isFusionMode = data.data
+  const nodeData = myDiagram.model.findNodeDataForKey("Tank1"); // oder ein anderer Key
+  myDiagram.startTransaction("refresh node");
+  myDiagram.model.updateTargetBindings(nodeData);
+  myDiagram.commitTransaction("refresh node");
+});
 
 var isFusionMode = true;
 var HV_U = 0;
@@ -7,15 +22,6 @@ var HV_PWM = 0;
 var HV_ON = true;
 var Pump_ON = true;
 var ValvePOS = 0;
-
-socket.on('newDataAvailable', function(data) {
-  console.log('Received message:', data.data);
-  isFusionMode = data.data
-  const nodeData = myDiagram.model.findNodeDataForKey("Tank1"); // oder ein anderer Key
-  myDiagram.startTransaction("refresh node");
-  myDiagram.model.updateTargetBindings(nodeData);
-  myDiagram.commitTransaction("refresh node");
-});
 
 function init() {
 
