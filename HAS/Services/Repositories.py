@@ -188,7 +188,10 @@ class StateRepository:
         data = self.__state.find_one({"system": system.name})
         if data is None:
             return None
-        return VacuumState.from_dictionary(data)
+        if system == System.vacuum:
+            return VacuumState.from_dictionary(data)
+        if system == System.highVoltage:
+            return HighVoltageState.from_dictionary(data)
 
     def update_state_for(self, status: StateBase):
         self.__state.update_one(

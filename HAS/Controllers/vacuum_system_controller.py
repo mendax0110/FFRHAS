@@ -3,7 +3,6 @@ from Services.Repositories import LoggingRepository, LoggingData, LoggingType, S
 from datetime import datetime
 class vacuum_system_controller:
     def __init__(self):
-        self.status = {"pumpOn":False, "targetPressure":1000.00, "automatic":False, "handBetrieb":True}
         self.__logger = LoggingRepository()
         self.__stateRepository = StateRepository()
 
