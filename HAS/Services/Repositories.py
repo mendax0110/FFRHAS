@@ -148,25 +148,41 @@ class VacuumState(StateBase):
     def get_dictionary(self) -> 'dict':
         return {"system":self.system, "pumpOn": self.pumpOn, "targetPressure": self.targetPressure, "automatic": self.automatic, "handBetrieb": self.handBetrieb}
 
-#TODO: adapt the Datadict so it fits the highVoltage state requirements
+
 class HighVoltageState(StateBase):
-    def __init__(self, pumpOn: bool, targetPressure: float, automatic: bool, handBetrieb: bool):
+    def __init__(self, hvOn: bool, frequencySoll: float, pwmSoll: float, automatic: bool, handBetrieb: bool):
         self.system = System.highVoltage.name
-        self.pumpOn = pumpOn
-        self.targetPressure = targetPressure
+        self.hvOn = hvOn
+        self.frequencySoll = frequencySoll
+        self.pwmSoll = pwmSoll
         self.automatic = automatic
         self.handBetrieb = handBetrieb
-        self.DataDict = {"system":System.highVoltage, "pumpOn": pumpOn, "targetPressure": targetPressure, "automatic": automatic, "handBetrieb": handBetrieb}
+
+    @classmethod
+    def from_dictionary(cls, data: dict) -> 'HighVoltageState':
+        data = data.copy()
+        data.pop("_id", None)  # Entfernt MongoDB-ID, falls vorhanden
+
+        try:
+            return cls(
+                hvOn = data['hvOn'],
+                frequencySoll = data['frequencySoll'],
+                pwmSoll = data['pwmSoll'],
+                automatic = data['automatic'],
+                handBetrieb = data['handBetrieb']
+            )
+        except KeyError as e:
+            raise ValueError(f"Missing field in data: {e}")
+
+    def get_dictionary(self) -> 'dict':
+        return {'hvOn':self.hvOn, 'frequencySoll':self.frequencySoll, 'pwmSoll':self.pwmSoll, 'automatic':self.automatic, 'handBetrieb':self.handBetrieb}
+
 
 class StateRepository:
     def __init__(self):
         self.__client = pymongo.MongoClient(connectionString)  # connection string
         self.__db = self.__client.Test  # use/create db
         self.__state = self.__db.State  # use/create folder in db
-
-    def get_all(self):
-        data = self.__state.find()
-        return dumps(data)
 
     def get_for_system(self, system: System):
         data = self.__state.find_one({"system": system.name})
