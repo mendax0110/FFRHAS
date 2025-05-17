@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 import pymongo
 from bson.json_util import dumps
 from abc import ABC, abstractmethod
+from typing import Type, Dict, Optional
 
 #connectionString = f"mongodb://admin:secret@mongodb:27017"
 connectionString = f"mongodb://localhost:27017"
@@ -178,20 +179,30 @@ class HighVoltageState(StateBase):
         return {'hvOn':self.hvOn, 'frequencySoll':self.frequencySoll, 'pwmSoll':self.pwmSoll, 'automatic':self.automatic, 'handBetrieb':self.handBetrieb}
 
 
+# Mapping System enum to state classes
+STATE_CLASS_MAP: Dict[System, Type[StateBase]] = {
+    System.vacuum: VacuumState,
+    System.highVoltage: HighVoltageState,
+}
+
+
 class StateRepository:
     def __init__(self):
         self.__client = pymongo.MongoClient(connectionString)  # connection string
         self.__db = self.__client.Test  # use/create db
         self.__state = self.__db.State  # use/create folder in db
 
-    def get_for_system(self, system: System):
+
+    def get_for_system(self, system: System) -> Optional[StateBase]:
         data = self.__state.find_one({"system": system.name})
         if data is None:
             return None
-        if system == System.vacuum:
-            return VacuumState.from_dictionary(data)
-        if system == System.highVoltage:
-            return HighVoltageState.from_dictionary(data)
+
+        state_cls = STATE_CLASS_MAP.get(system)
+        if not state_cls:
+            raise ValueError(f"No state class registered for system: {system.name}")
+
+        return state_cls.from_dictionary(data)
 
     def update_state_for(self, status: StateBase):
         self.__state.update_one(
