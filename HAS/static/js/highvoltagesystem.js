@@ -1,3 +1,19 @@
+// Access the container element (the 'leftSide' div or the 'body' if you prefer)
+const leftSide = document.querySelector('.leftSide');
+
+// Retrieve the dynamic data from the data attributes
+const hvOn = leftSide.dataset.hvOn === "true";
+const targetFrequency = parseFloat(leftSide.dataset.targetFrequency);
+const targetPwm = parseFloat(leftSide.dataset.targetPwm);
+const automatic = leftSide.dataset.automatic === "true";
+const handBetrieb = leftSide.dataset.handBetrieb === "true";
+
+ToggleHv(hvOn);
+document.getElementById("sollPwm").value = targetPwm;
+document.getElementById("sollFrequency").value = targetFrequency;
+ToggleAutomatic(automatic);
+ToggleControlStatus(handBetrieb);
+
 // Define the global JavaScript variable
 const host = window.location.hostname; // Gets the host (IP or domain name)
 // Construct the iframe URL
@@ -15,7 +31,11 @@ socket.on('backendData', (data) => {
     console.log('Received from server:', data);
 
     // PROCESS DATA HERE
-
+    ToggleHv(data.hvOn);
+    document.getElementById("sollPwm").value = data.targetPwm;
+    document.getElementById("sollFrequency").value = data.targetFrequency;
+    ToggleAutomatic(data.automatic);
+    ToggleControlStatus(data.handBetrieb);
 });
 
 var callbackFunction = null;
@@ -26,11 +46,65 @@ document.getElementById("grafana-temp1").src = iframeSrcTemp1;
 document.getElementById("grafana-temp2").src = iframeSrcTemp2;
 document.getElementById("grafana-pressure").src = iframeSrcPressure;
 
+document.getElementById("sollFrequency").addEventListener("keypress", function(event) {
+  // Check if the Enter key (keyCode 13) is pressed
+  if (event.key === "Enter") {
+    event.preventDefault(); // Prevent form submission (if inside a form)
+    showModal(setTargetFrequency); // Show the confirmation modal
+  }
+});
+
+document.getElementById("sollPwm").addEventListener("keypress", function(event) {
+  // Check if the Enter key (keyCode 13) is pressed
+  if (event.key === "Enter") {
+    event.preventDefault(); // Prevent form submission (if inside a form)
+    showModal(setTargetPwm); // Show the confirmation modal
+  }
+});
+
+async function setTargetFrequency() {
+  try {
+    const targetFrequency = document.getElementById("sollFrequency");
+
+    const response = await fetch(`/highvoltagesystem/setTargetFrequency?targetFrequency=${targetFrequency.value}`);
+    
+    if (response.status !== 200) {
+      console.log("Failed to set frequency");
+      targetFrequency.value = '';
+      return;
+    }
+
+    console.log("Set frequency successfully");
+  }
+  catch (error) {
+    console.error("Failed to set frequency:", error);
+  }
+}
+
+async function setTargetPwm() {
+  try {
+    const targetPwm = document.getElementById("sollPwm");
+
+    const response = await fetch(`/highvoltagesystem/setTargetPwm?targetPwm=${targetPwm.value}`);
+    
+    if (response.status !== 200) {
+      console.log("Failed to set pwm");
+      targetPwm.value = '';
+      return;
+    }
+
+    console.log("Set pwm successfully");
+  }
+  catch (error) {
+    console.error("Failed to set pwm:", error);
+  }
+}
+
 function ModeManual(){
   const buttonStart = document.getElementById("start");
   const buttonStop = document.getElementById("stop");
-  const frequencySoll = document.getElementById("frequencySoll");
-  const pwmSoll = document.getElementById("pwmSoll");
+  const frequencySoll = document.getElementById("sollFrequency");
+  const pwmSoll = document.getElementById("sollPwm");
   const buttonTurnOn = document.getElementById("turnOn");
   const buttonTurnOff = document.getElementById("turnOff");
   buttonStart.disabled = true;
@@ -44,8 +118,8 @@ function ModeManual(){
 function ModeAutomatic(){
   const buttonStart = document.getElementById("start");
   const buttonStop = document.getElementById("stop");
-  const frequencySoll = document.getElementById("frequencySoll");
-  const pwmSoll = document.getElementById("pwmSoll");
+  const frequencySoll = document.getElementById("sollFrequency");
+  const pwmSoll = document.getElementById("sollPwm");
   const buttonTurnOn = document.getElementById("turnOn");
   const buttonTurnOff = document.getElementById("turnOff");
   buttonStart.disabled = false;
@@ -56,36 +130,143 @@ function ModeAutomatic(){
   buttonTurnOff.disabled = true;
 }
 
-function TurnOnHighVoltage(){
+async function TurnOnHighVoltage() {
+  try {
+    const response = await fetch('/highvoltagesystem/StartHighVoltage');
+
+    if (response.status !== 200) {
+      console.log("Failed to start hv");
+      return;
+    }
+
+    console.log("started hv");
+    ToggleHv(true);
+  }
+  catch (error) {
+    console.error("Error starting hv:", error);
+  }
+}
+
+async function TurnOffHighVoltage(){
+  try {
+    const response = await fetch('/highvoltagesystem/StopHighVoltage');
+
+    if (response.status !== 200) {
+      console.log("Failed to stopp hv");
+      return;
+    }
+
+    console.log("stopped hv");
+    ToggleHv(false);
+  }
+  catch (error) {
+    console.error("Error stopping hv:", error);
+  }
+}
+
+function ToggleHv(isOn) {
+  const buttonTurnOn = document.getElementById("turnOn");
+  const buttonTurnOff = document.getElementById("turnOff");
+
+  if (isOn) {
     console.log("turned on HighVoltageSystem");
-    const buttonTurnOn = document.getElementById("turnOn");
-    const buttonTurnOff = document.getElementById("turnOff");
     buttonTurnOn.checked = true;
     buttonTurnOff.checked = false;
+    return;
+  }
+
+  console.log("turned off HighVoltageSystem");
+  buttonTurnOn.checked = false;
+  buttonTurnOff.checked = true;
 }
 
-function TurnOffHighVoltage(){
-    console.log("turned off HighVoltageSystem");
-    const buttonTurnOn = document.getElementById("turnOn");
-    const buttonTurnOff = document.getElementById("turnOff");
-    buttonTurnOn.checked = false;
-    buttonTurnOff.checked = true;
+async function StartAutomatic() {
+  try {
+    const response = await fetch('/highvoltagesystem/StartAutomatic');
+
+    if (response.status !== 200) {
+      console.log("Failed to start automatic");
+      return;
+    }
+
+    ToggleAutomatic(true);
+  }
+  catch (error) {
+    console.error("Error starting automatic:", error);
+  }
 }
 
-function StartAutomatic(){
-  console.log("started automatic");
+async function StopAutomatic(){
+  try {
+    const response = await fetch('/highvoltagesystem/StopAutomatic');
+
+    if (response.status !== 200) {
+      console.log("Failed to stop automatic");
+      return;
+    }
+
+    ToggleAutomatic(false);
+  }
+  catch (error) {
+    console.error("Error stopping automatic:", error);
+  }
+}
+
+function ToggleAutomatic(isAutomatic) {
   const buttonStart = document.getElementById("start");
   const buttonStop = document.getElementById("stop");
-  buttonStart.checked = true;
-  buttonStop.checked = false;
-}
+  
+  if (isAutomatic) {
+    console.log("started automatic");
+    buttonStart.checked = true;
+    buttonStop.checked = false;
+    return;
+  }
 
-function StopAutomatic(){
   console.log("stopped automatic");
-  const buttonStart = document.getElementById("start");
-  const buttonStop = document.getElementById("stop");
   buttonStart.checked = false;
   buttonStop.checked = true;
+}
+
+function ToggleControlStatus(isHandBetrieb) {
+  const hvOn = document.getElementById("turnOn");
+  const hvOff = document.getElementById("turnOff");
+  const buttonStart = document.getElementById("start");
+  const buttonStop = document.getElementById("stop");
+  const sollFrequency = document.getElementById("sollFrequency");
+  const sollPwm = document.getElementById("sollPwm");
+  const buttonAutomatic = document.getElementById("Automatic");
+  const buttonManual = document.getElementById("Manual");
+
+  if (isHandBetrieb) {
+    document.getElementById('controlStatusBanner').style.display = 'block'; 
+    hvOn.disabled = true;
+    hvOff.disabled = true;
+    buttonStart.disabled = true;
+    buttonStop.disabled = true;
+    sollFrequency.disabled = true;
+    sollPwm.disabled = true;
+    buttonAutomatic.disabled = true;
+    buttonManual.disabled = true;
+    return;
+  }
+  
+  document.getElementById('controlStatusBanner').style.display = 'none';
+
+  if (buttonAutomatic.checked) {
+    buttonStart.disabled = false;
+    buttonStop.disabled = false;
+    buttonAutomatic.disabled = false;
+    buttonManual.disabled = false;
+    return;
+  }
+
+  hvOn.disabled = false;
+  hvOff.disabled = false;
+  sollFrequency.disabled = false;
+  sollPwm.disabled = false;
+  buttonAutomatic.disabled = false;
+  buttonManual.disabled = false;
 }
 
 function showModal(callBack){

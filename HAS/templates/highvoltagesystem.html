@@ -4,12 +4,14 @@
 <link rel="stylesheet" href="/static/css/highvoltagesystemStyle.css">
 {% endblock %}
 
-{% block src %}
-<script src="../static/js/highvoltagesystem.js"></script>
-{% endblock %}
-
 {% block content %}
-<div class="leftSide">
+<div class="leftSide"
+  data-hv-on="{{ hvOn | tojson }}"
+  data-target-frequency="{{ targetFrequency | tojson }}"
+  data-target-pwm="{{ targetPwm | tojson }}"
+  data-automatic="{{ automatic | tojson }}"
+  data-hand-betrieb="{{ handBetrieb | tojson }}">
+
   <div class="control shadow p-4 bg-white rounded">
     <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
       <input type="radio" onclick="ModeAutomatic()" class="btn-check" name="Mode" id="Automatic" autocomplete="off" checked>
@@ -22,8 +24,8 @@
   <div class="control shadow p-4 bg-white rounded">
     <div class="input-group" style="justify-content: center;">
       <div class="form-group">
-        <label for="frequencySoll" class="form-label">Frequency soll [kHz]</label>
-        <input type="number" disabled="true" id="frequencySoll" class="form-control" aria-label="Soll">
+        <label for="sollFrequency" class="form-label">Frequency soll [kHz]</label>
+        <input type="number" disabled="true" id="sollFrequency" class="form-control" aria-label="Soll">
       </div>
       <div class="form-group">
         <label class="form-label">Frequency ist [kHz]</label>
@@ -34,8 +36,8 @@
   <div class="control shadow p-4 bg-white rounded">
     <div class="input-group" style="justify-content: center;">
       <div class="form-group">
-        <label for="pwmSoll" class="form-label">PWM soll [%]</label>
-        <input type="number" disabled="true" id="pwmSoll" class="form-control" aria-label="Soll">
+        <label for="sollPwm" class="form-label">PWM soll [%]</label>
+        <input type="number" disabled="true" id="sollPwm" class="form-control" aria-label="Soll">
       </div>
       <div class="form-group">
         <label class="form-label">PWM ist [%]</label>
@@ -61,6 +63,9 @@
       <label class="btn btn-outline-primary" for="stop">Stop</label>
     </div>  
   </div>
+  <div id="controlStatusBanner" class="alert alert-warning" role="alert" style="display: none;">
+    <strong>Machine Control Activated!</strong> You cannot control the system from the website right now.
+  </div>  
 </div>
 <div class="rightSide">
     <iframe class="shadow bg-white rounded" id="grafana-temp1" width="450" height="200" frameborder="0"></iframe>
@@ -86,4 +91,8 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block src %}
+<script src="../static/js/highvoltagesystem.js"></script>
 {% endblock %}

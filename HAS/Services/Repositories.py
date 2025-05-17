@@ -151,11 +151,11 @@ class VacuumState(StateBase):
 
 
 class HighVoltageState(StateBase):
-    def __init__(self, hvOn: bool, frequencySoll: float, pwmSoll: float, automatic: bool, handBetrieb: bool):
+    def __init__(self, hvOn: bool, targetFrequency: float, targetPwm: float, automatic: bool, handBetrieb: bool):
         self.system = System.highVoltage.name
         self.hvOn = hvOn
-        self.frequencySoll = frequencySoll
-        self.pwmSoll = pwmSoll
+        self.targetFrequency = targetFrequency
+        self.targetPwm = targetPwm
         self.automatic = automatic
         self.handBetrieb = handBetrieb
 
@@ -167,8 +167,8 @@ class HighVoltageState(StateBase):
         try:
             return cls(
                 hvOn = data['hvOn'],
-                frequencySoll = data['frequencySoll'],
-                pwmSoll = data['pwmSoll'],
+                targetFrequency= data['targetFrequency'],
+                targetPwm= data['targetPwm'],
                 automatic = data['automatic'],
                 handBetrieb = data['handBetrieb']
             )
@@ -176,7 +176,7 @@ class HighVoltageState(StateBase):
             raise ValueError(f"Missing field in data: {e}")
 
     def get_dictionary(self) -> 'dict':
-        return {'hvOn':self.hvOn, 'frequencySoll':self.frequencySoll, 'pwmSoll':self.pwmSoll, 'automatic':self.automatic, 'handBetrieb':self.handBetrieb}
+        return {'hvOn':self.hvOn, 'targetFrequency':self.targetFrequency, 'targetPwm':self.targetPwm, 'automatic':self.automatic, 'handBetrieb':self.handBetrieb}
 
 
 # Mapping System enum to state classes
