@@ -23,12 +23,7 @@ CORS(app)
 
 socket = SocketIO(app, cors_allowed_origins="*")
 
-eswEndpoints = [
-    "http://192.168.1.3/temperature_sensor_1",
-    "http://192.168.1.3/temperature_sensor_2"
-]
-
-client = EswClient(eswEndpoints)
+client = EswClient()
 
 import Socket_handler.HighvoltagesystemHandler
 import Socket_handler.OverviewHandler
@@ -37,5 +32,7 @@ import Socket_handler.VacuumsystemHandler
 
 if __name__ == "__main__":
     api_thread = threading.Thread(target=client.start_fetching, daemon=True)
-    #api_thread.start()
+    queue_thread = threading.Thread(target=client.start_fetching_from_queue(), daemon=True)
+    api_thread.start()
+    queue_thread.start()
     socket.run(app, host = "0.0.0.0" ,debug=True, port=5000)

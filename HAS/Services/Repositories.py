@@ -17,14 +17,14 @@ class Unit(Enum):
 
 
 class SensorData:
-    def __init__(self, sensorName: str, value: float, unit: Unit, timestamp: str):
+    def __init__(self, sensorName: str, value: float, unit: str, timestamp: str):
         '''
         :param sensorName: Name of the sensor
         :param value: Value of the sensor
         :param unit: Unit of the sensor
         :param timestamp: Timestamp in the format: 2025-01-04T15:30:00Z
         '''
-        self.DataDict = {"sensor_name": sensorName, "value": value, "unit": unit.name, "timestamp": timestamp}
+        self.DataDict = {"sensor_name": sensorName, "value": value, "unit": unit, "timestamp": timestamp}   # temporary use unit of esw
 
 
 class SensorDataRepository:
