@@ -4,6 +4,8 @@ from flask import render_template, request
 from Services.Repositories import SensorDataRepository, SensorData, Unit, LoggingData, LoggingType, LoggingRepository, Source, HighVoltageState, System, StateRepository
 import pymongo
 from flask.json import dumps
+from Services.http_clients import EswClient
+import Services.endpoints as endpoint
 
 class hv_system_controller:
     def __init__(self):
@@ -26,19 +28,23 @@ class hv_system_controller:
                                handBetrieb=highVoltageState.handBetrieb)
 
     def start_high_voltage(self):
+        with EswClient.lock:
+            EswClient.endpointQueue.append(endpoint.highVoltageOn)
         highVoltageState = self.__stateRepository.get_for_system(System.highVoltage)
         highVoltageState.hvOn = True
         self.__stateRepository.update_state_for(highVoltageState)
         data = LoggingData(Source.HAS, LoggingType.Info, "started high-voltage", datetime.isoformat(datetime.now()))
-        # self.__logger.write_one(data)
+        self.__logger.write_one(data)
         return '', 200
 
     def stop_high_voltage(self):
+        with EswClient.lock:
+            EswClient.endpointQueue.append(endpoint.highVoltageOff)
         highVoltageState = self.__stateRepository.get_for_system(System.highVoltage)
         highVoltageState.hvOn = False
         self.__stateRepository.update_state_for(highVoltageState)
         data = LoggingData(Source.HAS, LoggingType.Info, "stopped high-voltage", datetime.isoformat(datetime.now()))
-        #self.__logger.write_one(data)
+        self.__logger.write_one(data)
         return '', 200
 
     def start_automatic(self):
@@ -46,7 +52,7 @@ class hv_system_controller:
         highVoltageState.automatic = True
         self.__stateRepository.update_state_for(highVoltageState)
         data = LoggingData(Source.HAS, LoggingType.Info, "started high-voltage-automatic", datetime.isoformat(datetime.now()))
-        #self.__logger.write_one(data)
+        self.__logger.write_one(data)
         return '', 200
 
     def stop_automatic(self):
@@ -54,37 +60,41 @@ class hv_system_controller:
         highVoltageState.automatic = False
         self.__stateRepository.update_state_for(highVoltageState)
         data = LoggingData(Source.HAS, LoggingType.Info, "stopped high-voltage-automatic", datetime.isoformat(datetime.now()))
-        #self.__logger.write_one(data)
+        self.__logger.write_one(data)
         return '', 200
 
     def set_target_frequency(self):
         try:
             target_frequency = float(request.args.get('targetFrequency'))
+            with EswClient.lock:
+                EswClient.endpointQueue.append(endpoint.setFrequency(target_frequency))
             highVoltageState = self.__stateRepository.get_for_system(System.highVoltage)
             highVoltageState.targetFrequency = target_frequency
             self.__stateRepository.update_state_for(highVoltageState)
             data = LoggingData(Source.HAS, LoggingType.Info, f"set target frequency to: {target_frequency} kHz",
                                datetime.isoformat(datetime.now()))
-            # self.__logger.write_one(data)
+            self.__logger.write_one(data)
             return '', 200
         except:
             data = LoggingData(Source.HAS, LoggingType.Error, "Error occured trying to set target Frequency",
                                datetime.isoformat(datetime.now()))
-            # self.__logger.write_one(data)
+            self.__logger.write_one(data)
             return '', 400
 
     def set_target_pwm(self):
         try:
             target_pwm = float(request.args.get('targetPwm'))
+            with EswClient.lock:
+                EswClient.endpointQueue.append(endpoint.setDutycycle(target_pwm))
             highVoltageState = self.__stateRepository.get_for_system(System.highVoltage)
             highVoltageState.targetPwm = target_pwm
             self.__stateRepository.update_state_for(highVoltageState)
             data = LoggingData(Source.HAS, LoggingType.Info, f"set target pwm to: {target_pwm} kHz",
                                datetime.isoformat(datetime.now()))
-            # self.__logger.write_one(data)
+            self.__logger.write_one(data)
             return '', 200
         except:
             data = LoggingData(Source.HAS, LoggingType.Error, "Error occured trying to set target pwm",
                                datetime.isoformat(datetime.now()))
-            # self.__logger.write_one(data)
+            self.__logger.write_one(data)
             return '', 400

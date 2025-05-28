@@ -13,8 +13,8 @@ sensorEndpoints = [
 ]
 
 stateEndpoints = [
-    {"system":System.vacuum, "url": "", "parameter":"pumpOn"},
-    {"system":System.highVoltage, "url":f"http://{ipAddress}/get_flyback_switch_state", "parameter":"hvOn"} #0 = off, 1 = manual, 2 = remote, 3 = invalid
+    {"system":System.vacuum, "url": f"http://{ipAddress}/get_pump_switch_state", "parameter":"pumpOn"},
+    {"system":System.highVoltage, "url": f"http://{ipAddress}/get_flyback_switch_state", "parameter":"hvOn"} #0 = off, 1 = manual, 2 = remote, 3 = invalid
 ]
 
 loggingEndpoints = [
@@ -23,3 +23,20 @@ loggingEndpoints = [
     {"infoMessage": "temperature OK", "errorMessage":"temperature not OK","url": f"http://{ipAddress}/get_report_temp"},
     {"infoMessage": "pressure OK", "errorMessage":"pressure not OK","url": f"http://{ipAddress}/get_report_press"},
 ]
+
+# endpoints for Highvoltage
+highVoltageOn=f"http://{ipAddress}/set_flyback_ps/1"
+highVoltageOff=f"http://{ipAddress}/set_flyback_ps/0"
+def setFrequency(value: float) -> str:
+    return f"http://{ipAddress}/set_flyback_frequency/{value}"
+def setDutycycle(value: float) -> str:
+    return f"http://{ipAddress}/set_flyback_dutyCycle/{value}"
+
+# endpoints for vacuumsystem
+pumpOn=f"http://{ipAddress}/set_pump/1"
+pumpOff=f"http://{ipAddress}/set_pump/0"
+pressureControlMode=f"http://{ipAddress}/set_control_mode/5"
+def setTargetPressure(value: float) -> str:
+    return f"http://{ipAddress}/set_target_pressure/{value}"
+def setTargetPosition(value: float) -> str:
+    return f"http://{ipAddress}/set_target_position/{value}"
