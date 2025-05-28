@@ -22,6 +22,9 @@ loggingEndpoints = [
     {"infoMessage": "i2c OK", "errorMessage":"i2c not OK","url": f"http://{ipAddress}/get_report_i2c"},
     {"infoMessage": "temperature OK", "errorMessage":"temperature not OK","url": f"http://{ipAddress}/get_report_temp"},
     {"infoMessage": "pressure OK", "errorMessage":"pressure not OK","url": f"http://{ipAddress}/get_report_press"},
+    {"infoMessage": "memory OK", "errorMessage":"memory not OK","url": f"http://{ipAddress}/get_report_memoryOk"},
+    {"infoMessage": "ram OK", "errorMessage":"ram not OK","url": f"http://{ipAddress}/get_report_ramOk"},
+    {"infoMessage": "stack is OK", "errorMessage":"stack is not OK","url": f"http://{ipAddress}/get_report_stackSafeOk"},
 ]
 
 # endpoints for Highvoltage
