@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from flask import render_template, request
-from Services.Repositories import SensorDataRepository, SensorData, Unit, LoggingData, LoggingType, LoggingRepository, Source, HighVoltageState, System, StateRepository
+from Services.Repositories import SensorDataRepository, SensorData, Unit, LoggingData, LoggingType, LoggingRepository, Source, HighVoltageState, MainSwitchState, MainSwitchStateEnum, System, StateRepository
 import pymongo
 from flask.json import dumps
 from Services.http_clients import EswClient
@@ -15,9 +15,12 @@ class hv_system_controller:
 
     def render_template(self):
         highVoltageState = self.__stateRepository.get_for_system(System.highVoltage)
+        mainSwitchState = self.__stateRepository.get_for_system(System.mainSwitch)
         if highVoltageState is None:
-            highVoltageState = HighVoltageState(False, 25, 50, False, False)
+            highVoltageState = HighVoltageState(False, 25, 50, False)
             self.__stateRepository.update_state_for(highVoltageState)
+        if mainSwitchState is None:
+            mainSwitchState = MainSwitchState(MainSwitchStateEnum.off.name)
 
         return render_template('highvoltagesystem.html',
                                active_page='highvoltagesystem',
@@ -25,7 +28,7 @@ class hv_system_controller:
                                targetFrequency=highVoltageState.targetFrequency,
                                targetPwm=highVoltageState.targetPwm,
                                automatic=highVoltageState.automatic,
-                               handBetrieb=highVoltageState.handBetrieb)
+                               mainSwitchState=mainSwitchState.state)
 
     def start_high_voltage(self):
         with EswClient.lock:

@@ -109,6 +109,7 @@ class LoggingRepository:
 class System(Enum):
     highVoltage = 1
     vacuum = 2
+    mainSwitch = 3
 
 class StateBase(ABC):
     def __init__(self):
@@ -124,12 +125,24 @@ class StateBase(ABC):
         pass
 
 class VacuumState(StateBase):
-    def __init__(self, pumpOn: bool, targetPressure: float, automatic: bool, handBetrieb: bool):
+    def __init__(self, pumpOn: bool, targetPressure: float, automatic: bool):
         self.system = System.vacuum.name
-        self.pumpOn = pumpOn
+        self.__pumpOn = pumpOn
         self.targetPressure = targetPressure
         self.automatic = automatic
-        self.handBetrieb = handBetrieb
+
+    @property
+    def pumpOn(self):
+        return self.__pumpOn
+
+    @pumpOn.setter
+    def pumpOn(self, state):
+        if isinstance(int, state):
+            self.__pumpOn = state == 1
+        elif isinstance(bool, state):
+            self.__pumpOn = state
+        else:
+            raise ValueError("pumpOn must be either bool or int")
 
     @classmethod
     def from_dictionary(cls, data: dict) -> 'VacuumState':
@@ -140,24 +153,35 @@ class VacuumState(StateBase):
             return cls(
                 pumpOn=bool(data["pumpOn"]),
                 targetPressure=float(data["targetPressure"]),
-                automatic=bool(data["automatic"]),
-                handBetrieb=bool(data["handBetrieb"])
+                automatic=bool(data["automatic"])
             )
         except KeyError as e:
             raise ValueError(f"Missing field in data: {e}")
 
     def get_dictionary(self) -> 'dict':
-        return {"system":self.system, "pumpOn": self.pumpOn, "targetPressure": self.targetPressure, "automatic": self.automatic, "handBetrieb": self.handBetrieb}
+        return {"system":self.system, "pumpOn": self.pumpOn, "targetPressure": self.targetPressure, "automatic": self.automatic}
 
 
 class HighVoltageState(StateBase):
-    def __init__(self, hvOn: bool, targetFrequency: float, targetPwm: float, automatic: bool, handBetrieb: bool):
+    def __init__(self, hvOn: bool, targetFrequency: float, targetPwm: float, automatic: bool):
         self.system = System.highVoltage.name
-        self.hvOn = hvOn
+        self.__hvOn = hvOn
         self.targetFrequency = targetFrequency
         self.targetPwm = targetPwm
         self.automatic = automatic
-        self.handBetrieb = handBetrieb
+
+    @property
+    def hvOn(self):
+        return self.__hvOn
+
+    @hvOn.setter
+    def hvOn(self, state):
+        if isinstance(int, state):
+            self.__hvOn = state == 1
+        elif isinstance(bool, state):
+            self.__hvOn = state
+        else:
+            raise ValueError("hvOn must be either bool or int")
 
     @classmethod
     def from_dictionary(cls, data: dict) -> 'HighVoltageState':
@@ -169,20 +193,62 @@ class HighVoltageState(StateBase):
                 hvOn = data['hvOn'],
                 targetFrequency= data['targetFrequency'],
                 targetPwm= data['targetPwm'],
-                automatic = data['automatic'],
-                handBetrieb = data['handBetrieb']
+                automatic = data['automatic']
             )
         except KeyError as e:
             raise ValueError(f"Missing field in data: {e}")
 
     def get_dictionary(self) -> 'dict':
-        return {'hvOn':self.hvOn, 'targetFrequency':self.targetFrequency, 'targetPwm':self.targetPwm, 'automatic':self.automatic, 'handBetrieb':self.handBetrieb}
+        return {'hvOn':self.hvOn, 'targetFrequency':self.targetFrequency, 'targetPwm':self.targetPwm, 'automatic':self.automatic}
+
+class MainSwitchStateEnum(Enum):
+    off = 0,
+    manual = 1,
+    remote = 2,
+    invalid = 3
+
+class MainSwitchState(StateBase):
+    def __init__(self, state: str, ):
+        self.system = System.mainSwitch.name
+        self.__state = state
+
+    @property
+    def state(self):
+        return self.__state
+
+    @state.setter
+    def state(self, state):
+        if isinstance(state, int):
+            try:
+                enum_state = MainSwitchStateEnum(state)
+                self.__state = enum_state.name  # Speichert den Namen als String
+            except ValueError:
+                raise ValueError(f"{state} is not a valid MainSwitchStateEnum val")
+        else:
+            raise ValueError("state must be a integer")
+
+
+    @classmethod
+    def from_dictionary(cls, data: dict) -> 'MainSwitchState':
+        data = data.copy()
+        data.pop("_id", None)  # Entfernt MongoDB-ID, falls vorhanden
+
+        try:
+            return cls(
+                state = data['state'],
+            )
+        except KeyError as e:
+            raise ValueError(f"Missing field in data: {e}")
+
+    def get_dictionary(self) -> 'dict':
+        return {'state':self.__state}
 
 
 # Mapping System enum to state classes
 STATE_CLASS_MAP: Dict[System, Type[StateBase]] = {
     System.vacuum: VacuumState,
     System.highVoltage: HighVoltageState,
+    System.mainSwitch: MainSwitchState
 }
 
 

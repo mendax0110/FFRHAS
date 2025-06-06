@@ -10,7 +10,7 @@
   data-target-frequency="{{ targetFrequency | tojson }}"
   data-target-pwm="{{ targetPwm | tojson }}"
   data-automatic="{{ automatic | tojson }}"
-  data-hand-betrieb="{{ handBetrieb | tojson }}">
+  data-main-switch-state="{{ mainSwitchState | tojson }}">
 
   <div class="control shadow p-4 bg-white rounded">
     <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
@@ -64,8 +64,11 @@
     </div>  
   </div>
   <div id="controlStatusBanner" class="alert alert-warning" role="alert" style="display: none;">
-    <strong>Machine Control Activated!</strong> You cannot control the system from the website right now.
-  </div>  
+    <strong>Controlmode is manual</strong> You cannot control the system from the website right now.
+  </div>
+  <div id="offStatusBanner" class="alert alert-warning" role="alert" style="display: none;">
+    <strong>Controlmode is off</strong> You cannot control the system from the website right now.
+  </div>
 </div>
 <div class="rightSide">
     <iframe class="shadow bg-white rounded" id="grafana-temp1" width="450" height="200" frameborder="0"></iframe>

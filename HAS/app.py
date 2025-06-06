@@ -32,7 +32,7 @@ import Socket_handler.VacuumsystemHandler
 
 if __name__ == "__main__":
     api_thread = threading.Thread(target=client.start_fetching, daemon=True)
-    queue_thread = threading.Thread(target=client.start_fetching_from_queue(), daemon=True)
+    queue_thread = threading.Thread(target=client.start_fetching_from_queue, daemon=True)
     api_thread.start()
     queue_thread.start()
     socket.run(app, host = "0.0.0.0" ,debug=True, port=5000)

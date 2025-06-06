@@ -1,8 +1,8 @@
 from flask import Blueprint
-from Controllers.time_controller import time_controller
+from Controllers.time_controller import TimeController
 
 time_blueprint = Blueprint('time', __name__)
 
-controller = time_controller()
+controller = TimeController()
 
 time_blueprint.route('/', methods=['GET'])(controller.get_time)

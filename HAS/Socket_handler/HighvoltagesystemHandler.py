@@ -1,7 +1,7 @@
 from flask import request
 from __main__ import socket
 import time
-from Services.Repositories import LoggingRepository, LoggingData, LoggingType, Source, Unit, StateRepository, HighVoltageState, System
+from Services.Repositories import LoggingRepository, LoggingData, LoggingType, Source, Unit, StateRepository, HighVoltageState, MainSwitchState, MainSwitchStateEnum, System
 
 
 from flask import request
@@ -39,33 +39,41 @@ def send_data(sid):
             client_old_data = connected_clients[sid]
 
         highVoltageState = stateRepository.get_for_system(System.highVoltage)
-        if highVoltageState is None:
+        mainSwitchState = stateRepository.get_for_system(System.mainSwitch)
+
+        if highVoltageState is None or mainSwitchState is None:
             time.sleep(1)
             continue
 
-        if not data_changed(client_old_data, highVoltageState):
+        if not data_changed(client_old_data, highVoltageState, mainSwitchState):
             time.sleep(1)
             continue
 
         with lock:
-            connected_clients[sid] = highVoltageState  # Update only this client's state
+            connected_clients[sid] = {"highVoltageState":highVoltageState, "mainSwitchState":mainSwitchState}  # Update only this client's state
+
+        dataToEmit = {"highVoltageState":highVoltageState.get_dictionary(), "mainSwitchState":mainSwitchState.get_dictionary()}
 
         print(f"Emitting to {sid} on /highvoltagesystem")
-        socket.emit('backendData', highVoltageState.get_dictionary(), to=sid, namespace='/highvoltagesystem')
+        socket.emit('backendData', dataToEmit, to=sid, namespace='/highvoltagesystem')
         time.sleep(1)
 
 
-def data_changed(old: HighVoltageState, new: HighVoltageState):
+def data_changed(old: dict, newHighVoltageState: HighVoltageState, newMainSwitchState: MainSwitchState):
     if old is None:
         return True
-    if old.hvOn != new.hvOn:
+
+    oldHighVoltageState = old.get("highVoltageState")
+    oldMainSwitchState = old.get("mainSwitchState")
+
+    if oldHighVoltageState.hvOn != newHighVoltageState.hvOn:
         return True
-    if old.automatic != new.automatic:
+    if oldHighVoltageState.automatic != newHighVoltageState.automatic:
         return True
-    if old.targetPwm != new.targetPwm:
+    if oldHighVoltageState.targetPwm != newHighVoltageState.targetPwm:
         return True
-    if old.targetFrequency != new.targetFrequency:
+    if oldHighVoltageState.targetFrequency != newHighVoltageState.targetFrequency:
         return True
-    if old.handBetrieb != new.handBetrieb:
+    if oldMainSwitchState.state != newMainSwitchState.state:
         return True
     return False

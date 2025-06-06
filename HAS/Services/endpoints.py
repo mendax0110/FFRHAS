@@ -13,8 +13,9 @@ sensorEndpoints = [
 ]
 
 stateEndpoints = [
-    {"system":System.vacuum, "url": f"http://{ipAddress}/get_pump_switch_state", "parameter":"pumpOn"},
-    {"system":System.highVoltage, "url": f"http://{ipAddress}/get_flyback_switch_state", "parameter":"hvOn"} #0 = off, 1 = manual, 2 = remote, 3 = invalid
+    {"system":System.vacuum, "url": f"http://{ipAddress}/get_pump_pump_state", "parameter":"pumpOn"}, #0 = 0ff, 1 = on
+    {"system":System.highVoltage, "url": f"http://{ipAddress}/get_flyback_psu_state", "parameter":"hvOn"}, #0 = off, 1 = on
+    {"system":System.mainSwitch, "url": f"http://{ipAddress}/get_flyback_main_switch", "parameter":"state"} #0 = off, 1 = manual, 2 = remote, 3 = invalid
 ]
 
 loggingEndpoints = [
@@ -28,8 +29,8 @@ loggingEndpoints = [
 ]
 
 # endpoints for Highvoltage
-highVoltageOn=f"http://{ipAddress}/set_flyback_ps/1"
-highVoltageOff=f"http://{ipAddress}/set_flyback_ps/0"
+highVoltageOn=f"http://{ipAddress}/set_flyback_psu_state/1"
+highVoltageOff=f"http://{ipAddress}/set_flyback_psu_state/0"
 def setFrequency(value: float) -> str:
     return f"http://{ipAddress}/set_flyback_frequency/{value}"
 def setDutycycle(value: float) -> str:

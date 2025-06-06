@@ -1,5 +1,5 @@
 from flask import render_template, request
-from Services.Repositories import LoggingRepository, LoggingData, LoggingType, Source, Unit, StateRepository, VacuumState, System
+from Services.Repositories import LoggingRepository, LoggingData, LoggingType, Source, Unit, StateRepository, VacuumState, MainSwitchState, MainSwitchStateEnum, System
 from datetime import datetime
 from Services.http_clients import EswClient
 import Services.endpoints as endpoint
@@ -10,10 +10,15 @@ class vacuum_system_controller:
 
     def render_template(self):
         vacuumState = self.__stateRepository.get_for_system(System.vacuum)
+        mainSwitchState = self.__stateRepository.get_for_system(System.mainSwitch)
+
         if (vacuumState == None):
-            vacuumState = VacuumState(False, 1000, False, False)
+            vacuumState = VacuumState(False, 1000, False)
+        if mainSwitchState == None:
+            mainSwitchState = MainSwitchState(MainSwitchStateEnum.off.name)
+
         self.__stateRepository.update_state_for(vacuumState)
-        return render_template('vacuumsystem.html', active_page='vacuumsystem', pumpOn=vacuumState.pumpOn, targetPressure=vacuumState.targetPressure, automatic=vacuumState.automatic, handBetrieb=vacuumState.handBetrieb)
+        return render_template('vacuumsystem.html', active_page='vacuumsystem', pumpOn=vacuumState.pumpOn, targetPressure=vacuumState.targetPressure, automatic=vacuumState.automatic, mainSwitchState=mainSwitchState.state)
 
     def start_automatic(self):
         vacuumState = self.__stateRepository.get_for_system(System.vacuum)
