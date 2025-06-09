@@ -13,7 +13,7 @@ from .endpoints import sensorEndpoints, stateEndpoints, loggingEndpoints
 class EswClient:
     pauseEndpointQueue = False
     endpointQueue = []
-    lock = threading.Lock
+    lock = threading.Lock()
     def __init__(self):
         self.__fetching = False
         self.__fetchingQueue = False
@@ -100,10 +100,11 @@ class EswClient:
                 with EswClient.lock:
                     endpoint = EswClient.endpointQueue.pop(-1)
                 response = requests.get(endpoint)
-                loggingData = LoggingData(Source.HAS, LoggingType.Info, f"response on fetching: {endpoint}: {response.raw}")
+                loggingData = LoggingData(Source.HAS, LoggingType.Info, f"response on fetching: {endpoint}: {response.raw}", datetime.datetime.isoformat(datetime.datetime.now()))
                 self.__logger.write_one(loggingData)
             except Exception as ex:
-                loggingData = LoggingData(Source.HAS, LoggingType.Error, f"error in fetching queue item: {ex}")
+                print(f"[ERROR in empty queue] {ex}")
+                loggingData = LoggingData(Source.HAS, LoggingType.Error, f"error in fetching queue item: {ex}", datetime.datetime.isoformat(datetime.datetime.now()))
                 self.__logger.write_one(loggingData)
 
     def stop_fetching_from_queue(self):

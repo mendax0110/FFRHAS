@@ -137,9 +137,9 @@ class VacuumState(StateBase):
 
     @pumpOn.setter
     def pumpOn(self, state):
-        if isinstance(int, state):
+        if isinstance(state, int):
             self.__pumpOn = state == 1
-        elif isinstance(bool, state):
+        elif isinstance(state, bool):
             self.__pumpOn = state
         else:
             raise ValueError("pumpOn must be either bool or int")
@@ -176,9 +176,9 @@ class HighVoltageState(StateBase):
 
     @hvOn.setter
     def hvOn(self, state):
-        if isinstance(int, state):
+        if isinstance(state, int):
             self.__hvOn = state == 1
-        elif isinstance(bool, state):
+        elif isinstance(state, bool):
             self.__hvOn = state
         else:
             raise ValueError("hvOn must be either bool or int")

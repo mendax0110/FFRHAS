@@ -50,7 +50,7 @@ def send_data(sid):
             continue
 
         with lock:
-            connected_clients[sid] = {"vacuumstate": vacuumState, "mainSwitchState":mainSwitchState }  # Update only this client's state
+            connected_clients[sid] = {"vacuumState": vacuumState, "mainSwitchState":mainSwitchState }  # Update only this client's state
 
         dataToEmit = {"vacuumstate": vacuumState.get_dictionary(), "mainSwitchState": mainSwitchState.get_dictionary()}
 
