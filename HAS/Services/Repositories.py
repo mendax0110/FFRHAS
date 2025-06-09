@@ -202,9 +202,9 @@ class HighVoltageState(StateBase):
         return {'hvOn':self.hvOn, 'targetFrequency':self.targetFrequency, 'targetPwm':self.targetPwm, 'automatic':self.automatic}
 
 class MainSwitchStateEnum(Enum):
-    off = 0,
-    manual = 1,
-    remote = 2,
+    off = 0
+    manual = 1
+    remote = 2
     invalid = 3
 
 class MainSwitchState(StateBase):

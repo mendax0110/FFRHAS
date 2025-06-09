@@ -80,7 +80,7 @@ class EswClient:
                     data = LoggingData(Source.HAS, LoggingType.Error, str(ex), datetime.datetime.isoformat(datetime.datetime.now()))
                     self.__logger.write_one(data)
 
-            time.sleep(10)
+            time.sleep(1)
 
     def stop_fetching(self):
         self.__fetching = False
@@ -111,11 +111,13 @@ class EswClient:
         self.__fetchingQueue = False
 
     def fetch_api_endpoint(self, endpoint: str):
-        raw_response = requests.get(endpoint)
-        print(raw_response.content)
-        response = raw_response.json()
-        
-        return response
+        try:
+            response = requests.get(endpoint, timeout=3)
+            print(response.content)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            raise RuntimeError(f"Failed to fetch {endpoint}: {e}")
 
     def overwrite_state(self, vacuumState:VacuumState, highVoltageState:HighVoltageState, mainSwitchState:MainSwitchState, system:System, parameter:str, data):
         if system == System.mainSwitch:
