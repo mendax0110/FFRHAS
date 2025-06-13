@@ -4,9 +4,7 @@ import pymongo
 from bson.json_util import dumps
 from abc import ABC, abstractmethod
 from typing import Type, Dict, Optional
-
-#connectionString = f"mongodb://admin:secret@mongodb:27017"
-connectionString = f"mongodb://localhost:27017"
+from Services.DbContext import DbContext
 
 class Unit(Enum):
     Celsius = 1
@@ -29,8 +27,7 @@ class SensorData:
 
 class SensorDataRepository:
     def __init__(self):
-        self.__client = pymongo.MongoClient(connectionString)  # connection string
-        self.__db = self.__client.Test  # use/create db
+        self.__db = DbContext.createDb()
         self.__sensorData = self.__db.SensorData  # use/create folder in db
 
     def get_all(self):
@@ -79,8 +76,7 @@ class LoggingData:
 
 class LoggingRepository:
     def __init__(self):
-        self.__client = pymongo.MongoClient(connectionString)  # connection string
-        self.__db = self.__client.Test  # use/create db
+        self.__db = DbContext.createDb()
         self.__logging = self.__db.Logging  # use/create folder in db
 
     def get_all(self):
@@ -254,8 +250,7 @@ STATE_CLASS_MAP: Dict[System, Type[StateBase]] = {
 
 class StateRepository:
     def __init__(self):
-        self.__client = pymongo.MongoClient(connectionString)  # connection string
-        self.__db = self.__client.Test  # use/create db
+        self.__db = DbContext.createDb()
         self.__state = self.__db.State  # use/create folder in db
 
 
