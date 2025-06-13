@@ -108,7 +108,7 @@ class EswClient:
 
             try:
                 with EswClient.lock:
-                    endpoint = EswClient.endpointQueue.pop(-1)
+                    endpoint = EswClient.endpointQueue.pop(0)
                 response = requests.get(endpoint)
                 loggingData = LoggingData(Source.HAS, LoggingType.Info, f"response on fetching: {endpoint}: {response.raw}", datetime.datetime.isoformat(datetime.datetime.now()))
                 self.__logger.write_one(loggingData)
