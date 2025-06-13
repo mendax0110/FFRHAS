@@ -21,7 +21,7 @@ class EswClient:
         self.__stateRepository = StateRepository()
         self.__logger = LoggingRepository()
 
-    def start_fetching(self):
+    def start_fetching(self, timeBetweenRequest: int = 0, sleepBetweenIterations: int = 0):
         self.__fetching = True
         while self.__fetching:
             for endpoint in sensorEndpoints:
@@ -34,6 +34,9 @@ class EswClient:
                     print(f"[ERROR in SensorData] {ex}")
                     data = LoggingData(Source.HAS, LoggingType.Error, str(ex), datetime.datetime.isoformat(datetime.datetime.now()))
                     self.__logger.write_one(data)
+
+                print(f"sleeping for {timeBetweenRequest} seconds")
+                time.sleep(timeBetweenRequest)
 
             vacuumState = self.__stateRepository.get_for_system(System.vacuum)
             highVoltageState = self.__stateRepository.get_for_system(System.highVoltage)
@@ -58,6 +61,9 @@ class EswClient:
                     data = LoggingData(Source.HAS, LoggingType.Error, str(ex), datetime.datetime.isoformat(datetime.datetime.now()))
                     self.__logger.write_one(data)
 
+                print(f"sleeping for {timeBetweenRequest} seconds")
+                time.sleep(timeBetweenRequest)
+
             self.__stateRepository.update_state_for(vacuumState)
             self.__stateRepository.update_state_for(highVoltageState)
             self.__stateRepository.update_state_for(mainSwitchState)
@@ -80,9 +86,11 @@ class EswClient:
                     data = LoggingData(Source.HAS, LoggingType.Error, str(ex), datetime.datetime.isoformat(datetime.datetime.now()))
                     self.__logger.write_one(data)
 
-            sleepTime = 5
-            print(f"sleeping for {sleepTime} seconds")
-            time.sleep(sleepTime)
+                print(f"sleeping for {timeBetweenRequest} seconds")
+                time.sleep(timeBetweenRequest)
+
+            print(f"sleeping for {sleepBetweenIterations} seconds")
+            time.sleep(sleepBetweenIterations)
 
     def stop_fetching(self):
         self.__fetching = False
