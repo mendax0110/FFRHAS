@@ -80,7 +80,9 @@ class EswClient:
                     data = LoggingData(Source.HAS, LoggingType.Error, str(ex), datetime.datetime.isoformat(datetime.datetime.now()))
                     self.__logger.write_one(data)
 
-            time.sleep(1)
+            sleepTime = 5
+            print(f"sleeping for {sleepTime} seconds")
+            time.sleep(sleepTime)
 
     def stop_fetching(self):
         self.__fetching = False
