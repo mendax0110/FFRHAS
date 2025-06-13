@@ -13,10 +13,6 @@ from flask_cors import CORS
 from Services.http_clients import EswClient
 import threading
 from flask_socketio import SocketIO, emit
-from Services.DbContext import DbContext
-
-connectionstring = os.getenv("connectionstring")
-DbContext.connectionString = connectionstring if connectionstring else DbContext.connectionString
 
 app = Flask(__name__)
 app.register_blueprint(overview_blueprint, url_prefix='/')
