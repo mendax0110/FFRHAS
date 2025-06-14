@@ -34,7 +34,7 @@ class SensorDataRepository:
         data = self.__sensorData.find()
         return dumps(data)
 
-    def get_from_sensor(self, sensor_name: str):
+    def get_all_from_sensor(self, sensor_name: str):
         data = self.__sensorData.find({"sensor_name": sensor_name})
         return dumps(data)
 
@@ -44,6 +44,13 @@ class SensorDataRepository:
         data = self.__sensorData.find({"sensor_name": f"{sensor_name}",
                                  "timestamp": {"$gte": start_date.isoformat(), "$lte": start_date.isoformat()}
                                        })
+        return dumps(data)
+
+    def get_newest_from_sensor(self, sensor_name: str):
+        data = self.__sensorData.find_one(
+            {"sensor_name": sensor_name},
+            sort=[("timestamp", -1)]
+        )
         return dumps(data)
 
     def write_one(self, data: SensorData):
