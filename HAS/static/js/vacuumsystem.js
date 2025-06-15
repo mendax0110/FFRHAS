@@ -5,12 +5,13 @@ const leftSide = document.querySelector('.leftSide');
 const pumpOn = leftSide.dataset.pumpOn === "true";
 const targetPressure = parseFloat(leftSide.dataset.targetPressure);
 const automatic = leftSide.dataset.automatic === "true";
-const handBetrieb = leftSide.dataset.handBetrieb === "true";
+const handBetrieb = leftSide.dataset.mainSwitchState === "manual";
+const isOff = leftSide.dataset.mainSwitchState === "off";
 
 TogglePump(pumpOn);
 ToggleAutomatic(automatic);
 const pressureValue = document.getElementById("sollInput").value = targetPressure;
-ToggleControlStatus(handBetrieb);
+ToggleControlStatus(handBetrieb, isOff);
 
 // Define the global JavaScript variable
 const host = window.location.hostname; // Gets the host (IP or domain name)
@@ -29,11 +30,12 @@ socket.on('backendData', (data) => {
     console.log('Received from server:', data);
 
     // PROCESS DATA HERE
-    TogglePump(data.pumpOn);
-    ToggleAutomatic(data.automatic);
-    document.getElementById("sollInput").value = data.targetPressure;
-    ToggleControlStatus(data.handBetrieb);
-
+    TogglePump(data.vacuumstate.pumpOn);
+    ToggleAutomatic(data.vacuumstate.automatic);
+    document.getElementById("sollInput").value = data.vacuumstate.targetPressure;
+    var isHandBetrieb = data.mainSwitchState.state === "manual";
+    var isOff = data.mainSwitchState.state === "off";
+    ToggleControlStatus(isHandBetrieb, isOff);
 });
 
 var callbackFunction = null;
@@ -194,7 +196,7 @@ function ToggleAutomatic(isAutomaticMode) {
   buttonStop.checked = true;
 }
 
-function ToggleControlStatus(isHandBetrieb) {
+function ToggleControlStatus(isHandBetrieb, isOff) {
   const pumpOn = document.getElementById("On");
   const pumpOff = document.getElementById("Off");
   const buttonStart = document.getElementById("start");
@@ -203,8 +205,22 @@ function ToggleControlStatus(isHandBetrieb) {
   const buttonAutomatic = document.getElementById("Automatic");
   const buttonManual = document.getElementById("Manual");
 
+  if (isOff) {
+    document.getElementById('offStatusBanner').style.display = 'block';
+    document.getElementById('controlStatusBanner').style.display = 'none';
+    pumpOn.disabled = true;
+    pumpOff.disabled = true;
+    buttonStart.disabled = true;
+    buttonStop.disabled = true;
+    sollInput.disabled = true;
+    buttonAutomatic.disabled = true;
+    buttonManual.disabled = true;
+    return;
+  }
+
   if (isHandBetrieb) {
-    document.getElementById('controlStatusBanner').style.display = 'block'; 
+    document.getElementById('controlStatusBanner').style.display = 'block';
+    document.getElementById('offStatusBanner').style.display = 'none';
     pumpOn.disabled = true;
     pumpOff.disabled = true;
     buttonStart.disabled = true;
@@ -216,6 +232,7 @@ function ToggleControlStatus(isHandBetrieb) {
   }
   
   document.getElementById('controlStatusBanner').style.display = 'none';
+  document.getElementById('offStatusBanner').style.display = 'none';
 
   if (buttonAutomatic.checked) {
     buttonStart.disabled = false;

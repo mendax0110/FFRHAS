@@ -6,13 +6,14 @@ const hvOn = leftSide.dataset.hvOn === "true";
 const targetFrequency = parseFloat(leftSide.dataset.targetFrequency);
 const targetPwm = parseFloat(leftSide.dataset.targetPwm);
 const automatic = leftSide.dataset.automatic === "true";
-const handBetrieb = leftSide.dataset.handBetrieb === "true";
+const handBetrieb = leftSide.dataset.mainSwitchState === "manual";
+const isOff = leftSide.dataset.mainSwitchState === "off";
 
 ToggleHv(hvOn);
 document.getElementById("sollPwm").value = targetPwm;
 document.getElementById("sollFrequency").value = targetFrequency;
 ToggleAutomatic(automatic);
-ToggleControlStatus(handBetrieb);
+ToggleControlStatus(handBetrieb, isOff);
 
 // Define the global JavaScript variable
 const host = window.location.hostname; // Gets the host (IP or domain name)
@@ -28,14 +29,16 @@ socket.on('connect', () => {
 });
 
 socket.on('backendData', (data) => {
-    console.log('Received from server:', data);
+  console.log('Received from server:', data);
 
-    // PROCESS DATA HERE
-    ToggleHv(data.hvOn);
-    document.getElementById("sollPwm").value = data.targetPwm;
-    document.getElementById("sollFrequency").value = data.targetFrequency;
-    ToggleAutomatic(data.automatic);
-    ToggleControlStatus(data.handBetrieb);
+  // PROCESS DATA HERE
+  ToggleHv(data.highVoltageState.hvOn);
+  document.getElementById("sollPwm").value = data.highVoltageState.targetPwm;
+  document.getElementById("sollFrequency").value = data.highVoltageState.targetFrequency;
+  ToggleAutomatic(data.highVoltageState.automatic);
+  var isHandBetrieb = data.mainSwitchState.state === "manual";
+  var isOff = data.mainSwitchState.state === "off";
+  ToggleControlStatus(isHandBetrieb, isOff);
 });
 
 var callbackFunction = null;
@@ -228,7 +231,7 @@ function ToggleAutomatic(isAutomatic) {
   buttonStop.checked = true;
 }
 
-function ToggleControlStatus(isHandBetrieb) {
+function ToggleControlStatus(isHandBetrieb, isOff) {
   const hvOn = document.getElementById("turnOn");
   const hvOff = document.getElementById("turnOff");
   const buttonStart = document.getElementById("start");
@@ -238,8 +241,23 @@ function ToggleControlStatus(isHandBetrieb) {
   const buttonAutomatic = document.getElementById("Automatic");
   const buttonManual = document.getElementById("Manual");
 
+  if (isOff) {
+    document.getElementById('offStatusBanner').style.display = 'block';
+    document.getElementById('controlStatusBanner').style.display = 'none';
+    hvOn.disabled = true;
+    hvOff.disabled = true;
+    buttonStart.disabled = true;
+    buttonStop.disabled = true;
+    sollFrequency.disabled = true;
+    sollPwm.disabled = true;
+    buttonAutomatic.disabled = true;
+    buttonManual.disabled = true;
+    return;
+  }
+
   if (isHandBetrieb) {
     document.getElementById('controlStatusBanner').style.display = 'block'; 
+    document.getElementById('offStatusBanner').style.display = 'none';
     hvOn.disabled = true;
     hvOff.disabled = true;
     buttonStart.disabled = true;
@@ -252,6 +270,7 @@ function ToggleControlStatus(isHandBetrieb) {
   }
   
   document.getElementById('controlStatusBanner').style.display = 'none';
+  document.getElementById('offStatusBanner').style.display = 'none';
 
   if (buttonAutomatic.checked) {
     buttonStart.disabled = false;

@@ -5,7 +5,7 @@ import time
 
 import requests
 
-from Services.Repositories import SensorDataRepository, SensorData, LoggingRepository, LoggingData, LoggingType, Source, Unit, StateRepository, System, HighVoltageState, VacuumState, StateBase
+from Services.Repositories import SensorDataRepository, SensorData, LoggingRepository, LoggingData, LoggingType, Source, Unit, StateRepository, System, HighVoltageState, VacuumState, MainSwitchState, MainSwitchStateEnum,StateBase
 from requests import request
 from .endpoints import sensorEndpoints, stateEndpoints, loggingEndpoints
 
@@ -13,7 +13,7 @@ from .endpoints import sensorEndpoints, stateEndpoints, loggingEndpoints
 class EswClient:
     pauseEndpointQueue = False
     endpointQueue = []
-    lock = threading.Lock
+    lock = threading.Lock()
     def __init__(self):
         self.__fetching = False
         self.__fetchingQueue = False
@@ -21,7 +21,7 @@ class EswClient:
         self.__stateRepository = StateRepository()
         self.__logger = LoggingRepository()
 
-    def start_fetching(self):
+    def start_fetching(self, timeBetweenRequest: int = 0, sleepBetweenIterations: int = 0):
         self.__fetching = True
         while self.__fetching:
             for endpoint in sensorEndpoints:
@@ -35,23 +35,38 @@ class EswClient:
                     data = LoggingData(Source.HAS, LoggingType.Error, str(ex), datetime.datetime.isoformat(datetime.datetime.now()))
                     self.__logger.write_one(data)
 
+                print(f"sleeping for {timeBetweenRequest} seconds")
+                time.sleep(timeBetweenRequest)
+
             vacuumState = self.__stateRepository.get_for_system(System.vacuum)
             highVoltageState = self.__stateRepository.get_for_system(System.highVoltage)
+            mainSwitchState = self.__stateRepository.get_for_system(System.mainSwitch)
+
+            if vacuumState is None:
+                vacuumState = VacuumState(False, 1000, False)
+            if highVoltageState is None:
+                highVoltageState = HighVoltageState(False, 25, 50, False)
+            if mainSwitchState is None:
+                mainSwitchState = MainSwitchState(MainSwitchStateEnum.off.name)
 
             for endpoint in stateEndpoints:
                 # fetch data from uC
                 try:
                     data = self.fetch_api_endpoint(endpoint.get("url"))
 
-                    self.overwrite_state(vacuumState, highVoltageState, endpoint.get("system"), endpoint.get("parameter"), data["value"])
+                    self.overwrite_state(vacuumState, highVoltageState, mainSwitchState, endpoint.get("system"), endpoint.get("parameter"), data["value"])
 
                 except Exception as ex:
                     print(f"[ERROR in StateData] {ex}")
                     data = LoggingData(Source.HAS, LoggingType.Error, str(ex), datetime.datetime.isoformat(datetime.datetime.now()))
                     self.__logger.write_one(data)
 
+                print(f"sleeping for {timeBetweenRequest} seconds")
+                time.sleep(timeBetweenRequest)
+
             self.__stateRepository.update_state_for(vacuumState)
             self.__stateRepository.update_state_for(highVoltageState)
+            self.__stateRepository.update_state_for(mainSwitchState)
 
             for endpoint in loggingEndpoints:
                 try:
@@ -71,7 +86,11 @@ class EswClient:
                     data = LoggingData(Source.HAS, LoggingType.Error, str(ex), datetime.datetime.isoformat(datetime.datetime.now()))
                     self.__logger.write_one(data)
 
-            time.sleep(10)
+                print(f"sleeping for {timeBetweenRequest} seconds")
+                time.sleep(timeBetweenRequest)
+
+            print(f"sleeping for {sleepBetweenIterations} seconds")
+            time.sleep(sleepBetweenIterations)
 
     def stop_fetching(self):
         self.__fetching = False
@@ -81,42 +100,47 @@ class EswClient:
 
         while(self.__fetchingQueue):
             if EswClient.pauseEndpointQueue:
+                time.sleep(0.1) #nötig um anderen Threads CPU zugriffszeit zu lassen
                 continue
             if len(EswClient.endpointQueue) == 0:
+                time.sleep(0.1) #nötig um anderen Threads CPU zugriffszeit zu lassen
                 continue
 
             try:
                 with EswClient.lock:
-                    endpoint = EswClient.endpointQueue.pop(-1)
+                    endpoint = EswClient.endpointQueue.pop(0)
                 response = requests.get(endpoint)
-                loggingData = LoggingData(Source.HAS, LoggingType.Info, f"response on fetching: {endpoint}: {response.raw}")
+                loggingData = LoggingData(Source.HAS, LoggingType.Info, f"response on fetching: {endpoint}: {response.raw}", datetime.datetime.isoformat(datetime.datetime.now()))
                 self.__logger.write_one(loggingData)
             except Exception as ex:
-                loggingData = LoggingData(Source.HAS, LoggingType.Error, f"error in fetching queue item: {ex}")
+                print(f"[ERROR in empty queue] {ex}")
+                loggingData = LoggingData(Source.HAS, LoggingType.Error, f"error in fetching queue item: {ex}", datetime.datetime.isoformat(datetime.datetime.now()))
                 self.__logger.write_one(loggingData)
 
     def stop_fetching_from_queue(self):
         self.__fetchingQueue = False
 
     def fetch_api_endpoint(self, endpoint: str):
-        raw_response = requests.get(endpoint)
-        print(raw_response.content)
-        response = raw_response.json()
-        
-        return response
+        try:
+            response = requests.get(endpoint, timeout=3)
+            print(response.content)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            raise RuntimeError(f"Failed to fetch {endpoint}: {e}")
 
-    def overwrite_state(self, vacuumState:VacuumState, highVoltageState:HighVoltageState, system:System, parameter:str, data):
-        if parameter == "handBetrieb":
-            highVoltageState.handBetrieb == data
-            vacuumState.handBetrieb == data
+    def overwrite_state(self, vacuumState:VacuumState, highVoltageState:HighVoltageState, mainSwitchState:MainSwitchState, system:System, parameter:str, data):
+        if system == System.mainSwitch:
+            if parameter == "state":
+                mainSwitchState.state = int(data)
 
         if system == System.vacuum:
             if parameter == "pumpOn":
-                vacuumState.pumpOn = data
+                vacuumState.pumpOn = int(data)
 
         if system == System.highVoltage:
             if parameter == "hvOn":
-                highVoltageState.hvOn = data
+                highVoltageState.hvOn = int(data)
 
     def send_command(self, endpoint:str):
         EswClient.endpointQueue.append(endpoint)

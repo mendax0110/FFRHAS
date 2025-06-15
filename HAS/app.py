@@ -1,3 +1,5 @@
+import os
+
 import eventlet
 eventlet.monkey_patch()
 
@@ -11,7 +13,6 @@ from flask_cors import CORS
 from Services.http_clients import EswClient
 import threading
 from flask_socketio import SocketIO, emit
-
 
 app = Flask(__name__)
 app.register_blueprint(overview_blueprint, url_prefix='/')
@@ -31,8 +32,8 @@ import Socket_handler.SystemstatusHandler
 import Socket_handler.VacuumsystemHandler
 
 if __name__ == "__main__":
-    api_thread = threading.Thread(target=client.start_fetching, daemon=True)
-    queue_thread = threading.Thread(target=client.start_fetching_from_queue(), daemon=True)
+    api_thread = threading.Thread(target=client.start_fetching, args=(0.1, 5), daemon=True)
+    queue_thread = threading.Thread(target=client.start_fetching_from_queue, daemon=True)
     api_thread.start()
     queue_thread.start()
     socket.run(app, host = "0.0.0.0" ,debug=True, port=5000)

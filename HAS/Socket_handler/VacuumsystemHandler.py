@@ -1,7 +1,7 @@
 from flask import request
 from __main__ import socket
 import time
-from Services.Repositories import LoggingRepository, LoggingData, LoggingType, Source, Unit, StateRepository, VacuumState, System
+from Services.Repositories import LoggingRepository, LoggingData, LoggingType, Source, Unit, StateRepository, VacuumState, MainSwitchState, MainSwitchStateEnum, System
 
 
 from flask import request
@@ -39,29 +39,39 @@ def send_data(sid):
             client_old_data = connected_clients[sid]
 
         vacuumState = stateRepository.get_for_system(System.vacuum)
-        if vacuumState is None:
+        mainSwitchState = stateRepository.get_for_system(System.mainSwitch)
+
+        if vacuumState is None or mainSwitchState is None:
             time.sleep(1)
             continue
 
-        if not data_changed(client_old_data, vacuumState):
+        if not data_changed(client_old_data, vacuumState, mainSwitchState):
             time.sleep(1)
             continue
 
         with lock:
-            connected_clients[sid] = vacuumState  # Update only this client's state
+            connected_clients[sid] = {"vacuumState": vacuumState, "mainSwitchState":mainSwitchState }  # Update only this client's state
+
+        dataToEmit = {"vacuumstate": vacuumState.get_dictionary(), "mainSwitchState": mainSwitchState.get_dictionary()}
 
         print(f"Emitting to {sid} on /vacuumsystem")
-        socket.emit('backendData', vacuumState.get_dictionary(), to=sid, namespace='/vacuumsystem')
+        socket.emit('backendData', dataToEmit, to=sid, namespace='/vacuumsystem')
         time.sleep(1)
 
 
-def data_changed(old: VacuumState, new: VacuumState):
+def data_changed(old: dict, newVacuumState: VacuumState, newMainSwitchState: MainSwitchState):
     if old is None:
         return True
-    if old.pumpOn != new.pumpOn:
+
+    oldVacuumState = old.get("vacuumState")
+    oldMainSwitchState = old.get("mainSwitchState")
+
+    if oldVacuumState.pumpOn != newVacuumState.pumpOn:
         return True
-    if old.automatic != new.automatic:
+    if oldVacuumState.automatic != newVacuumState.automatic:
         return True
-    if old.targetPressure != new.targetPressure:
+    if oldVacuumState.targetPressure != newVacuumState.targetPressure:
+        return True
+    if oldMainSwitchState.state != newMainSwitchState.state:
         return True
     return False

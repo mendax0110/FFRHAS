@@ -1,0 +1,29 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class StateRepository {
+    - __client: MongoClient
+    - __db: Database
+    - __state: Collection
+    + get_for_system(system: System): StateBase
+    + update_state_for(status: StateBase)
+}
+
+abstract class StateBase {
+    + system: str
+    + get_dictionary(): dict
+    + from_dictionary(data: dict): StateBase
+}
+
+class ControllerA
+class ControllerB
+class SockethandlerA
+class SockethandlerB
+
+StateRepository --> StateBase : returns
+ControllerA --> StateRepository : uses
+ControllerB --> StateRepository : uses
+SockethandlerA --> StateRepository : uses
+SockethandlerB--> StateRepository : uses
+
+@enduml

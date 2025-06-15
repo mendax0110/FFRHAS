@@ -17,8 +17,8 @@ class TimeController:
         self.__thread_lock = Lock()  # Protects access to thread/event objects
 
     def get_time(self):
-        now = datetime.now(timezone.utc)
-        iso_string = datetime.isoformat(now)
+        now = datetime.now(timezone.utc)  # Get current time in UTC
+        iso_string = now.strftime("%Y-%m-%dT%H:%M:%SZ")
         response = {"time": iso_string}
 
         loggingData = LoggingData(Source.HAS, LoggingType.Info, "time was requested", iso_string)
