@@ -43,6 +43,15 @@ def send_data(sid):
         mainSwitchState = stateRepository.get_for_system(System.mainSwitch)
         pressure = sensorDataRepository.get_newest_from_sensor(Sensor.get_actual_pressure.name)
 
+        targetPressure = None
+        try:
+            targetPressure = sensorDataRepository.get_newest_from_sensor(Sensor.target_pressure.name)
+        except:
+            targetPressure = None
+
+        if targetPressure is not None:
+            vacuumState.targetPressure = targetPressure.value
+
         if vacuumState is None or mainSwitchState is None or pressure is None:
             time.sleep(1)
             continue

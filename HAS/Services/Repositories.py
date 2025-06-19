@@ -21,6 +21,7 @@ class Sensor(Enum):
     get_actual_position = 5
     get_temperature_MCP9601C_Indoor = 6
     get_temperature_MCP9601C_Outdoor = 7
+    target_pressure = 8
 
 
 class SensorData:

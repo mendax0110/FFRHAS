@@ -9,7 +9,8 @@ sensorEndpoints = [
     f"http://{ipAddress}/get_actual_position",
     f"http://{ipAddress}/get_actual_pressure",
     f"http://{ipAddress}/get_temperature_MCP9601C_Indoor",
-    f"http://{ipAddress}/get_temperature_MCP9601C_Outdoor"
+    f"http://{ipAddress}/get_temperature_MCP9601C_Outdoor",
+    f"http://{ipAddress}/get_vacControl_targetpressure"
 ]
 
 stateEndpoints = [
