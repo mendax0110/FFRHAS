@@ -49,7 +49,7 @@ def send_data(sid):
         except:
             targetPressure = None
 
-        if targetPressure is not None:
+        if targetPressure > -1:
             vacuumState.targetPressure = targetPressure.value
 
         if vacuumState is None or mainSwitchState is None or pressure is None:
