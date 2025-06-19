@@ -68,12 +68,12 @@ class hv_system_controller:
 
     def set_target_frequency(self):
         try:
-            target_frequency = float(request.args.get('targetFrequency'))
-            target_frequency = target_frequency*1000
+            target_frequency_frontend = float(request.args.get('targetFrequency'))
+            target_frequency = target_frequency_frontend*1000
             with EswClient.lock:
                 EswClient.endpointQueue.append(endpoint.setFrequency(target_frequency))
             highVoltageState = self.__stateRepository.get_for_system(System.highVoltage)
-            highVoltageState.targetFrequency = target_frequency
+            highVoltageState.targetFrequency = target_frequency_frontend
             self.__stateRepository.update_state_for(highVoltageState)
             data = LoggingData(Source.HAS, LoggingType.Info, f"set target frequency to: {target_frequency} kHz",
                                datetime.isoformat(datetime.now()))
