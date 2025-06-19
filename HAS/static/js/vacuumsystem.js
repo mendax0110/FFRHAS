@@ -23,19 +23,20 @@ const iframeSrcPressure = `http://${host}:3000/d-solo/Vacuumsystem?orgId=1&panel
 const socket = io('/vacuumsystem');
 
 socket.on('connect', () => {
-    console.log('Connected to /vacuumsystem');
+  console.log('Connected to /vacuumsystem');
 });
 
 socket.on('backendData', (data) => {
-    console.log('Received from server:', data);
+  console.log('Received from server:', data);
 
-    // PROCESS DATA HERE
-    TogglePump(data.vacuumstate.pumpOn);
-    ToggleAutomatic(data.vacuumstate.automatic);
-    document.getElementById("sollInput").value = data.vacuumstate.targetPressure;
-    var isHandBetrieb = data.mainSwitchState.state === "manual";
-    var isOff = data.mainSwitchState.state === "off";
-    ToggleControlStatus(isHandBetrieb, isOff);
+  // PROCESS DATA HERE
+  TogglePump(data.vacuumstate.pumpOn);
+  ToggleAutomatic(data.vacuumstate.automatic);
+  document.getElementById("sollInput").value = data.vacuumstate.targetPressure;
+  document.getElementById("actualPressure").innerText = data.pressure.value;
+  var isHandBetrieb = data.mainSwitchState.state === "manual";
+  var isOff = data.mainSwitchState.state === "off";
+  ToggleControlStatus(isHandBetrieb, isOff);
 });
 
 var callbackFunction = null;

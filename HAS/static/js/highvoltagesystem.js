@@ -34,7 +34,9 @@ socket.on('backendData', (data) => {
   // PROCESS DATA HERE
   ToggleHv(data.highVoltageState.hvOn);
   document.getElementById("sollPwm").value = data.highVoltageState.targetPwm;
+  document.getElementById("actualDutyCycle").innerText = data.actualDutyCycle.value;
   document.getElementById("sollFrequency").value = data.highVoltageState.targetFrequency;
+  document.getElementById("actualFrequency").innerText = data.actualFrequency.value;
   ToggleAutomatic(data.highVoltageState.automatic);
   var isHandBetrieb = data.mainSwitchState.state === "manual";
   var isOff = data.mainSwitchState.state === "off";

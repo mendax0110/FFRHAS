@@ -13,6 +13,15 @@ class Unit(Enum):
     mbar = 4
     Hz = 5
 
+class Sensor(Enum):
+    frequency = 1
+    dutyCycle = 2
+    voltage = 3
+    get_actual_pressure = 4
+    get_actual_position = 5
+    get_temperature_MCP9601C_Indoor = 6
+    get_temperature_MCP9601C_Outdoor = 7
+
 
 class SensorData:
     def __init__(self, sensorName: str, value: float, unit: str, timestamp: str):
@@ -22,7 +31,28 @@ class SensorData:
         :param unit: Unit of the sensor
         :param timestamp: Timestamp in the format: 2025-01-04T15:30:00Z
         '''
-        self.DataDict = {"sensor_name": sensorName, "value": value, "unit": unit, "timestamp": timestamp}   # temporary use unit of esw
+        self.sensorName = sensorName
+        self.value = value
+        self.unit = unit
+        self.timestamp = timestamp
+
+    @classmethod
+    def from_dictionary(cls, data: dict):
+        data = data.copy()
+        data.pop("_id", None)  # Entfernt MongoDB-ID, falls vorhanden
+
+        try:
+            return cls(
+                sensorName=data["sensor_name"],
+                value=float(data["value"]),
+                unit=data["unit"],
+                timestamp=data["timestamp"]
+            )
+        except KeyError as e:
+            raise ValueError(f"Missing field in data: {e}")
+
+    def get_dictionary(self):
+        return {"sensor_name": self.sensorName, "value": self.value, "unit": self.unit, "timestamp": self.timestamp}
 
 
 class SensorDataRepository:
@@ -30,31 +60,41 @@ class SensorDataRepository:
         self.__db = DbContext.createDb()
         self.__sensorData = self.__db.SensorData  # use/create folder in db
 
-    def get_all(self):
+    def get_all(self) -> list:
         data = self.__sensorData.find()
-        return dumps(data)
+        sensorDataList = []
+        for dict in data:
+            sensorDataList.append(SensorData.from_dictionary(dict))
+        return sensorDataList
 
-    def get_all_from_sensor(self, sensor_name: str):
+    def get_all_from_sensor(self, sensor_name: str) -> list:
         data = self.__sensorData.find({"sensor_name": sensor_name})
-        return dumps(data)
+        sensorDataList = []
+        for dict in data:
+            sensorDataList.append(SensorData.from_dictionary(dict))
+        return sensorDataList
 
-    def get_from_sensor_for_range(self, sensor_name: str, start_date: datetime, stop_date: datetime):
+    def get_from_sensor_for_range(self, sensor_name: str, start_date: datetime, stop_date: datetime) -> list:
         start_date = start_date.astimezone(timezone.utc)
         stop_date = stop_date.astimezone(timezone.utc)
         data = self.__sensorData.find({"sensor_name": f"{sensor_name}",
                                  "timestamp": {"$gte": start_date.isoformat(), "$lte": start_date.isoformat()}
                                        })
-        return dumps(data)
+        sensorDataList = []
+        for dict in data:
+            sensorDataList.append(SensorData.from_dictionary(dict))
+        return sensorDataList
 
     def get_newest_from_sensor(self, sensor_name: str):
         data = self.__sensorData.find_one(
             {"sensor_name": sensor_name},
             sort=[("timestamp", -1)]
         )
-        return dumps(data)
+        return SensorData.from_dictionary(data)
+
 
     def write_one(self, data: SensorData):
-        self.__sensorData.insert_one(data.DataDict)
+        self.__sensorData.insert_one(data.get_dictionary())
 
     def write_many(self, data_list: list):
         self.__sensorData.insert_many(data_list)

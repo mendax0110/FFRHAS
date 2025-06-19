@@ -1,7 +1,7 @@
 from flask import request
 from __main__ import socket
 import time
-from Services.Repositories import LoggingRepository, LoggingData, LoggingType, Source, Unit, StateRepository, VacuumState, MainSwitchState, MainSwitchStateEnum, System
+from Services.Repositories import LoggingRepository, LoggingData, LoggingType, Source, Unit, StateRepository, VacuumState, MainSwitchState, MainSwitchStateEnum, System, Sensor, SensorData, SensorDataRepository
 
 
 from flask import request
@@ -12,6 +12,7 @@ import threading
 connected_clients = {}  # key: sid, value: oldData
 lock = threading.Lock()
 stateRepository = StateRepository()
+sensorDataRepository = SensorDataRepository()
 
 @socket.on('connect', namespace='/vacuumsystem')
 def handle_connect():
@@ -40,26 +41,27 @@ def send_data(sid):
 
         vacuumState = stateRepository.get_for_system(System.vacuum)
         mainSwitchState = stateRepository.get_for_system(System.mainSwitch)
+        pressure = sensorDataRepository.get_newest_from_sensor(Sensor.get_actual_pressure.name)
 
-        if vacuumState is None or mainSwitchState is None:
+        if vacuumState is None or mainSwitchState is None or pressure is None:
             time.sleep(1)
             continue
 
-        if not data_changed(client_old_data, vacuumState, mainSwitchState):
+        if not state_data_changed(client_old_data, vacuumState, mainSwitchState) and not sensor_data_changed(client_old_data, pressure):
             time.sleep(1)
             continue
 
         with lock:
-            connected_clients[sid] = {"vacuumState": vacuumState, "mainSwitchState":mainSwitchState }  # Update only this client's state
+            connected_clients[sid] = {"vacuumState": vacuumState, "mainSwitchState":mainSwitchState, "pressure":pressure }  # Update only this client's state
 
-        dataToEmit = {"vacuumstate": vacuumState.get_dictionary(), "mainSwitchState": mainSwitchState.get_dictionary()}
+        dataToEmit = {"vacuumstate": vacuumState.get_dictionary(), "mainSwitchState": mainSwitchState.get_dictionary(), "pressure": pressure.get_dictionary()}
 
         print(f"Emitting to {sid} on /vacuumsystem")
         socket.emit('backendData', dataToEmit, to=sid, namespace='/vacuumsystem')
         time.sleep(1)
 
 
-def data_changed(old: dict, newVacuumState: VacuumState, newMainSwitchState: MainSwitchState):
+def state_data_changed(old: dict, newVacuumState: VacuumState, newMainSwitchState: MainSwitchState):
     if old is None:
         return True
 
@@ -73,5 +75,15 @@ def data_changed(old: dict, newVacuumState: VacuumState, newMainSwitchState: Mai
     if oldVacuumState.targetPressure != newVacuumState.targetPressure:
         return True
     if oldMainSwitchState.state != newMainSwitchState.state:
+        return True
+    return False
+
+def sensor_data_changed(old: dict, pressure: SensorData):
+    if old is None:
+        return True
+
+    oldPressure = old.get("pressure")
+
+    if oldPressure.value != pressure.value:
         return True
     return False
