@@ -59,7 +59,7 @@ def send_data(sid):
         print(targetPressure.value)
         print(vacuumState.targetPressure)
 
-        StateRepository.update_state_for(status= vacuumState)
+        stateRepository.update_state_for(vacuumState)
 
         if not state_data_changed(client_old_data, vacuumState, mainSwitchState) and not sensor_data_changed(client_old_data, pressure):
             time.sleep(1)
