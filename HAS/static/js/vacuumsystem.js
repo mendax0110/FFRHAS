@@ -16,9 +16,9 @@ ToggleControlStatus(handBetrieb, isOff);
 // Define the global JavaScript variable
 const host = window.location.hostname; // Gets the host (IP or domain name)
 // Construct the iframe URL
-const iframeSrcTemp1 = `http://${host}:3000/d-solo/Vacuumsystem?orgId=1&panelId=1`;
-const iframeSrcTemp2 = `http://${host}:3000/d-solo/Vacuumsystem?orgId=1&panelId=2`;
-const iframeSrcPressure = `http://${host}:3000/d-solo/Vacuumsystem?orgId=1&panelId=3`;
+const iframeSrcTemp1 = `http://${host}:3000/d-solo/Vacuumsystem?orgId=1&panelId=1&from=now-30m&to=now&timezone=browser&refresh=1s`;
+const iframeSrcTemp2 = `http://${host}:3000/d-solo/Vacuumsystem?orgId=1&panelId=2&from=now-30m&to=now&timezone=browser&refresh=1s`;
+const iframeSrcPressure = `http://${host}:3000/d-solo/Vacuumsystem?orgId=1&panelId=3&from=now-30m&to=now&timezone=browser&refresh=1s`;
 
 const socket = io('/vacuumsystem');
 
