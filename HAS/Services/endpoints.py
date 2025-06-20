@@ -14,7 +14,7 @@ sensorEndpoints = [
 ]
 
 stateEndpoints = [
-    {"system":System.vacuum, "url": f"http://{ipAddress}/get_pump_pump_state", "parameter":"pumpOn"}, #0 = 0ff, 1 = on
+    {"system":System.vacuum, "url": f"http://{ipAddress}/get_pump_state", "parameter":"pumpOn"}, #0 = 0ff, 1 = on
     {"system":System.highVoltage, "url": f"http://{ipAddress}/get_flyback_psu_state", "parameter":"hvOn"}, #0 = off, 1 = on
     {"system":System.mainSwitch, "url": f"http://{ipAddress}/get_flyback_main_switch", "parameter":"state"} #0 = off, 1 = manual, 2 = remote, 3 = invalid
 ]
