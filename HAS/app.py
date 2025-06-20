@@ -32,7 +32,7 @@ import Socket_handler.SystemstatusHandler
 import Socket_handler.VacuumsystemHandler
 
 if __name__ == "__main__":
-    api_thread = threading.Thread(target=client.start_fetching, args=(0.1, 5), daemon=True)
+    api_thread = threading.Thread(target=client.start_fetching, args=(0.05, 2), daemon=True)
     queue_thread = threading.Thread(target=client.start_fetching_from_queue, daemon=True)
     api_thread.start()
     queue_thread.start()
