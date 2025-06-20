@@ -51,6 +51,8 @@ def send_data(sid):
 
         if targetPressure is not None and targetPressure.value > -1:
             vacuumState.targetPressure = targetPressure.value
+        else:
+            vacuumState.targetPressure = 0
 
         if vacuumState is None or mainSwitchState is None or pressure is None:
             time.sleep(1)
