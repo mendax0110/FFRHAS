@@ -23,16 +23,18 @@ async function loadHealth() {
     const res = await fetch('/pi/health');
     const data = await res.json();
     statusDiv.innerHTML = `
-      <ul class="list-group">
-        <li class="list-group-item"><strong>CPU Temperatur:</strong> ${data.cpu_temp.cpu_temp ?? 'n/a'} °C ${data.cpu_temp.ok ? '✅' : '❌'}</li>
-        <li class="list-group-item"><strong>CPU Auslastung:</strong> ${data.cpu_usage.cpu_usage ?? 'n/a'} % ${data.cpu_usage.ok ? '✅' : '❌'}</li>
-        <li class="list-group-item"><strong>Speicher:</strong> ${data.memory.memory_usage ?? 'n/a'} % ${data.memory.ok ? '✅' : '❌'}</li>
-        <li class="list-group-item"><strong>Festplatte:</strong> ${data.disk.disk_usage ?? 'n/a'} % ${data.disk.ok ? '✅' : '❌'}</li>
-        <li class="list-group-item"><strong>Netzwerk:</strong> ${data.network.network ? '✅' : '❌'}</li>
-        <li class="list-group-item"><strong>GPIO Pin 18:</strong> ${data.gpio.gpio_18 ?? 'n/a'} ${data.gpio.error ? '❌' : '✅'}</li>
+        <ul class="list-group">
+        <li class="list-group-item"><strong>CPU Temperatur:</strong> ${data.cpu_temp.cpu_temp ?? 'n/a'} °C ${data.cpu_temp.ok ? '[OK]' : '[Überschritten]'}</li>
+        <li class="list-group-item"><strong>CPU Auslastung:</strong> ${data.cpu_usage.cpu_usage ?? 'n/a'} % ${data.cpu_usage.ok ? '[OK]' : '[Zu hoch]'}</li>
+        <li class="list-group-item"><strong>Speicher:</strong> ${data.memory.memory_usage ?? 'n/a'} % ${data.memory.ok ? '[OK]' : '[Zu hoch]'}</li>
+        <li class="list-group-item"><strong>Festplatte:</strong> ${data.disk.disk_usage ?? 'n/a'} % ${data.disk.ok ? '[OK]' : '[Fast voll]'}</li>
+        <li class="list-group-item"><strong>Netzwerk:</strong> ${data.network.network ? '[Erreichbar]' : '[Nicht erreichbar]'}</li>
+        <li class="list-group-item"><strong>GPIO Pin 18:</strong> ${data.gpio.gpio_18 ?? 'n/a'} ${data.gpio.error ? '[Fehler]' : '[OK]'}</li>
+        <li class="list-group-item"><strong>Spannung:</strong> ${data.voltage.voltage ?? 'n/a'} V ${data.voltage.error ? '[Fehler]' : '[OK]'}</li>
+        <li class="list-group-item"><strong>Throttling:</strong> ${data.throttling.ok ? '[Kein Throttling]' : '[Throttling aktiv]'}</li>
         <li class="list-group-item"><strong>Uptime:</strong> ${new Date(data.uptime.uptime * 1000).toISOString().substr(11, 8)}</li>
         <li class="list-group-item"><strong>System:</strong> ${data.system.platform} (${data.system.hostname})</li>
-      </ul>
+        </ul>
     `;
   } catch (e) {
     statusDiv.innerHTML = '<div class="alert alert-danger">Fehler beim Laden der Daten!</div>';

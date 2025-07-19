@@ -59,6 +59,21 @@ def get_system_info():
         "cpu_cores": psutil.cpu_count(logical=True)
     }
 
+def check_voltage():
+    try:
+        volts = subprocess.check_output(["vcgencmd", "measure_volts"]).decode().strip()
+        return {"voltage": volts}
+    except Exception as e:
+        return {"voltage": None, "error": str(e)}
+
+def check_throttling():
+    try:
+        throttled = subprocess.check_output(["vcgencmd", "get_throttled"]).decode().strip()
+        flag = throttled.split("=")[1]
+        return {"throttling": flag, "ok": flag == "0x0"}
+    except Exception as e:
+        return {"throttling": None, "error": str(e)}
+
 def run_health_checks():
     return {
         "system": get_system_info(),
@@ -68,5 +83,7 @@ def run_health_checks():
         "memory": check_memory(),
         "uptime": check_uptime(),
         "network": check_network(),
-        "gpio": check_gpio()
+        "gpio": check_gpio(),
+        "voltage": check_voltage(),
+        "throttling": check_throttling()
     }
