@@ -13,6 +13,7 @@ from flask_cors import CORS
 from Services.http_clients import EswClient
 import threading
 from flask_socketio import SocketIO, emit
+from Controllers.pi_health_controller import pi_health_bp
 
 app = Flask(__name__)
 app.register_blueprint(overview_blueprint, url_prefix='/')
@@ -20,6 +21,7 @@ app.register_blueprint(vacuum_system_blueprint, url_prefix='/vacuumsystem')
 app.register_blueprint(hv_system_blueprint, url_prefix='/highvoltagesystem')
 app.register_blueprint(systemstatus_blueprint, url_prefix='/systemstatus')
 app.register_blueprint(time_blueprint, url_prefix='/time')
+app.register_blueprint(pi_health_bp, url_prefix='/pi')
 CORS(app)
 
 socket = SocketIO(app, cors_allowed_origins="*")
