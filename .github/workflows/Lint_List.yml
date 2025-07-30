@@ -30,10 +30,6 @@ jobs:
           flake8 HAS --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 HAS --count --exit-zero --max-complexity=12 --max-line-length=127 --statistics
 
-      - name: Build package (optional)
-        run: |
-          python -m build HAS
-
       - name: List files for debugging
         run: |
           tree
