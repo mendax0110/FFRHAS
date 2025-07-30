@@ -1,0 +1,39 @@
+name: Python Lint and Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-test-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r HAS/requirements.txt
+          pip install flake8 pytest build
+
+      - name: Lint with flake8
+        run: |
+          flake8 HAS --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 HAS --count --exit-zero --max-complexity=12 --max-line-length=127 --statistics
+
+      - name: Build package (optional)
+        run: |
+          python -m build HAS
+
+      - name: List files for debugging
+        run: |
+          tree
